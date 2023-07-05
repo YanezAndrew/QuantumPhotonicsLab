@@ -19,6 +19,7 @@ def on_mouse(event, x, y, flags, param):
     elif start_mouse_tracking and event == cv2.EVENT_LBUTTONUP:
         click_end = (x, y)
 
+#,cv2.CAP_DSHOW
 cap = cv2.VideoCapture(0)
 cv2.namedWindow('Edges')
 cv2.setMouseCallback('Edges', on_mouse)
