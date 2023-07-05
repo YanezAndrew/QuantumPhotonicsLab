@@ -1,99 +1,87 @@
 import cv2
-import pygetwindow
-import pyautogui
 import numpy as np
 import pytesseract
 import time
 
+#pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 count = 0
-cv2.namedWindow("Edges", cv2.WINDOW_NORMAL)
-cv2.resizeWindow("Edges", 640, 480)
+paused = False
+click_start = None
+click_end = None
+start_mouse_tracking = False
+crop_img = False
 
-def crop(image, x1, y1, x2, y2):
-    cv2.rectangle(image, (x1, y1), (x2, y2), (255, 0, 0), 2)
-    # Crop the image to the rectangle
-    cropped_image = image[y1:y2, x1:x2]
+def on_mouse(event, x, y, flags, param):
+    global click_start, click_end, start_mouse_tracking
+    if start_mouse_tracking and event == cv2.EVENT_LBUTTONDOWN:
+        click_start = (x, y)
+    elif start_mouse_tracking and event == cv2.EVENT_LBUTTONUP:
+        click_end = (x, y)
 
-
-    return image
-
-#pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-  
-# capture frames from a camera
 cap = cv2.VideoCapture(0)
-  
-  
-# loop runs if capturing has been initialized
-while(1):
+cv2.namedWindow('Edges')
+cv2.setMouseCallback('Edges', on_mouse)
 
-    count +=1
-    # reads frames from a camera
-    ret, frame = cap.read()
-    # converting BGR to HSV
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    # define range of red color in HSV
-    lower_red = np.array([30,150,50])
-    upper_red = np.array([255,255,180])
+while True:
+    key = cv2.waitKey(1)
+    count += 1
+    _, frame = cap.read()
+
+    if not paused:
+        edges = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        """
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        lower_red = np.array([30, 150, 50])
+        upper_red = np.array([255, 255, 180])
+        mask = cv2.inRange(hsv, lower_red, upper_red)
+        res = cv2.bitwise_and(frame, frame, mask=mask)
+        edges = cv2.Canny(frame, 100, 200)
+        """
+        if crop_img == True:
+            crop = edges[start_point[1]:end_point[1], start_point[0]:end_point[0]]
+            print(pytesseract.image_to_string(crop, lang='eng',config='--psm 6'))
+            cv2.imshow('Edges', crop)
+        else:
+            cv2.imshow('Edges', edges)
+        
     
+        #print(edges.shape)
 
-    # create a red HSV colour boundary and threshold HSV image
-    mask = cv2.inRange(hsv, lower_red, upper_red)
-    # Bitwise-AND mask and original image
-    res = cv2.bitwise_and(frame,frame, mask= mask)
-    #cv2.imshow('Original',frame)
-    edges = cv2.Canny(frame,100,200)
-    cv2.imshow('Edges',edges)
 
+    # Start mouse tracking when "[" key is pressed
+    if key == ord('['):
+        paused = not paused
+        start_mouse_tracking = not start_mouse_tracking
+
+    if key == ord('b'):
+        if not paused:
+            crop_img = False
+
+    # Draw rectangle if click_start and click_end are available and video is paused
+    if paused and click_start is not None and click_end is not None:
+        image = edges.copy()
+        start_point = click_start
+        end_point = click_end
+        color = (255, 0, 0)
+        thickness = 2
+        image = cv2.rectangle(image, start_point, end_point, color, thickness)
+        crop_img = True
+        #crop_img = image[start_point[1]:end_point[1], start_point[0]:end_point[0]]
+        cv2.imshow('Edges', image)
+
+    if click_start is not None and click_end is not None:
+        print("Mouse click start:", click_start)
+        print("Mouse click end:", click_end)
+        click_start = None
+        click_end = None
     
-    window = pygetwindow.getWindowsWithTitle('Edges')[0]
-    x, y = pyautogui.position()
-
-    # Get the position of the window
-    window_x, window_y = window.left, window.top
-    window_width, window_height = window.width, window.height
-
-    # Check if the cursor is inside the window
-    if (
-        window_x <= x <= window_x + window_width
-        and window_y <= y <= window_y + window_height
-    ):
-        # Cursor is inside the window
-        relative_x = x - window_x
-        relative_y = y - window_y
-        print(f"Cursor position: ({relative_x}, {relative_y})")
-
-    print(f"Window size: ({window_width}, {window_height})")
-
-
-
-
-
-    if (pyautogui.mouseDown("left")):
-        relative_x
-        relative_y
-
-        if (letgo):
-            relative_x
-            relative_y
-            # draw rectangle
-            # crop out
-    # if click certain key then go back to normal size
-
-    
-    #text = pytesseract.image_to_string(edges, config='--psm 6 digits')
-    #print(text)
-
     # Wait for Esc key to stop
-    k = cv2.waitKey(5) & 0xFF
-    if k == 27:
+    if key == 27:
         break
-  
-  
-# Close the window
-cap.release()
-  
-# De-allocate any associated memory usage
-cv2.destroyAllWindows() 
+    #time.sleep(1)
 
-print("total: ", count)
+cv2.destroyAllWindows()
+cap.release()
+
+print("Total frames processed:", count)
