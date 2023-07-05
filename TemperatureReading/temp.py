@@ -18,10 +18,10 @@ def crop(image, x1, y1, x2, y2):
 
     return image
 
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+#pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
   
 # capture frames from a camera
-cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+cap = cv2.VideoCapture(0)
   
   
 # loop runs if capturing has been initialized
