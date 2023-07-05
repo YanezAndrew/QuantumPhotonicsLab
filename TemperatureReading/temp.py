@@ -3,6 +3,7 @@ import pygetwindow
 import pyautogui
 import numpy as np
 import pytesseract
+import time
 
 
 count = 0
