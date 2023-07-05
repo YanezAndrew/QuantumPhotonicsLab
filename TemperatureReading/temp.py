@@ -3,7 +3,8 @@ import pygetwindow
 import pyautogui
 import numpy as np
 import pytesseract
-import time
+
+
 count = 0
 cv2.namedWindow("Edges", cv2.WINDOW_NORMAL)
 cv2.resizeWindow("Edges", 640, 480)
