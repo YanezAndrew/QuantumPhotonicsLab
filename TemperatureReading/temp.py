@@ -5,7 +5,9 @@ import time
 import csv
 import os
 import pandas as pd
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from matplotlib import style
 import time
 
 #this is a test
@@ -22,6 +24,7 @@ start_mouse_tracking = False
 crop_img = False
 duration = 5 
 start = True
+
 def on_mouse(event, x, y, flags, param):
     global click_start, click_end, start_mouse_tracking
     if start_mouse_tracking and event == cv2.EVENT_LBUTTONDOWN:
@@ -29,25 +32,34 @@ def on_mouse(event, x, y, flags, param):
     elif start_mouse_tracking and event == cv2.EVENT_LBUTTONUP:
         click_end = (x, y)
 
+
 #,cv2.CAP_DSHOW
 cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
 cv2.namedWindow('Edges')
 cv2.setMouseCallback('Edges', on_mouse)
 
 while start:
-    key = cv2.waitKey(1)
-    count += 1
     _, frame = cap.read()
+    key = cv2.waitKey(1)
+    count += 1 
     edges = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     if not paused:
         if crop_img == True:
             start_time = time.time()
+            
+            #Crops it
             crop = edges[start_point[1]:end_point[1], start_point[0]:end_point[0]]
             cv2.imshow('Edges', crop)
+
             # Extract the text from the cropped image
             temp = (pytesseract.image_to_string(crop, lang='eng', config='--psm 6'))
+            temp = temp.replace('\n', '')
             # Append the data to the list
             data.append([time.ctime(start_time), temp])
+            with open(os.path.join(current_dir, 'data.csv'), 'w', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(['Timestamp', 'Temp'])
+                writer.writerows(data)
             print(temp)
             print('Current Time:', time.ctime(time.time()))
             #print(time.ctime(start_time))
@@ -84,17 +96,13 @@ while start:
         image = cv2.rectangle(image, start_point, end_point, color, thickness)
         crop_img = True
         cv2.imshow('Edges', image)
+    
 
     if click_start is not None and click_end is not None:
         print("Mouse click start:", click_start)
         print("Mouse click end:", click_end)
         click_start = None
         click_end = None
-    
-    with open(os.path.join(current_dir, 'data.csv'), 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(['Timestamp', 'Temp'])
-        writer.writerows(data)
     
     # Wait for Esc key to stop
     if key == 27:
