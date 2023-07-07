@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import pytesseract
 import time
+import datetime as dt
 import csv
 import os
 import pandas as pd
@@ -22,8 +23,13 @@ click_start = None
 click_end = None
 start_mouse_tracking = False
 crop_img = False
-duration = 5 
+duration = 180
 start = True
+
+fig = plt.figure()
+ax = fig.add_subplot(1, 1, 1)
+xs = []
+ys = []
 
 def on_mouse(event, x, y, flags, param):
     global click_start, click_end, start_mouse_tracking
@@ -32,6 +38,23 @@ def on_mouse(event, x, y, flags, param):
     elif start_mouse_tracking and event == cv2.EVENT_LBUTTONUP:
         click_end = (x, y)
 
+def animate(i, xs, ys):
+    xs.append(dt.datetime.now().strftime('%H:%M:%S.%f'))
+    ys.append(temp)
+
+
+    xs = xs[-20:]
+    ys = ys[-20:]
+
+    ax.clear()
+    ax.plot(xs, ys)
+
+    
+
+    plt.xticks(rotation=45, ha='right')
+    plt.subplots_adjust(bottom=0.30)
+    plt.title('Temperature over Time')
+    plt.ylabel('Temperature (deg C)')
 
 #,cv2.CAP_DSHOW
 cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
@@ -46,7 +69,7 @@ while start:
     if not paused:
         if crop_img == True:
             start_time = time.time()
-            
+
             #Crops it
             crop = edges[start_point[1]:end_point[1], start_point[0]:end_point[0]]
             cv2.imshow('Edges', crop)
@@ -60,6 +83,8 @@ while start:
                 writer = csv.writer(csvfile)
                 writer.writerow(['Timestamp', 'Temp'])
                 writer.writerows(data)
+            ani = animation.FuncAnimation(fig, animate, fargs=(xs, ys), interval=300)
+            plt.show()
             print(temp)
             print('Current Time:', time.ctime(time.time()))
             #print(time.ctime(start_time))
