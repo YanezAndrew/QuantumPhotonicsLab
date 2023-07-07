@@ -11,10 +11,6 @@ import matplotlib.animation as animation
 from matplotlib import style
 import time
 
-#this is a test
-
-
-
 def on_mouse(event, x, y, flags, param):
     global click_start, click_end, start_mouse_tracking
     if start_mouse_tracking and event == cv2.EVENT_LBUTTONDOWN:
@@ -23,8 +19,6 @@ def on_mouse(event, x, y, flags, param):
     elif start_mouse_tracking and event == cv2.EVENT_LBUTTONUP:
         click_end = (x, y)
         print("Mouse click end:", click_end)
-
-
 
 def key_press(key):
     # Wait for Esc key to stop
@@ -37,17 +31,9 @@ def key_press(key):
     if key == ord('b'):
         return 'B'
 
-
-
-
-
-    
-
 if __name__ == "__main__":
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-
     current_dir = os.getcwd()
-
     count = 0
     data = []
     paused = False
@@ -55,14 +41,14 @@ if __name__ == "__main__":
     click_end = None
     start_mouse_tracking = False
     crop_img = False
-    duration = 180
+    duration = 5
     start = True
+    start_time = None
 
     #,cv2.CAP_DSHOW
     cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
     cv2.namedWindow('Edges')
     cv2.setMouseCallback('Edges', on_mouse)
-
 
     while True:
         key = cv2.waitKey(1)
@@ -79,43 +65,42 @@ if __name__ == "__main__":
         count += 1 
         ret, frame = cap.read()
         edges = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        
         if not paused:
             if crop_img == True:
-                start_time = time.time()
+                if start_time is None:  # Check if start_time is not set
+                    start_time = time.time()
+                crop = edges[start_point[1]:end_point[1], start_point[0]:end_point[0]]
                 cv2.imshow('Edges', crop)
-                # Extract the text from the cropped image
-                temp = (pytesseract.image_to_string(crop, lang='eng', config='--psm 6'))
-                temp = temp.replace('\n', '')
-                # Append the data to the list
-                data.append([time.ctime(start_time), temp])
-                with open(os.path.join(current_dir, 'data.csv'), 'w', newline='') as csvfile:
-                    writer = csv.writer(csvfile)
-                    writer.writerow(['Timestamp', 'Temp'])
-                    writer.writerows(data)
-                print(temp)
-                print('Current Time:', time.ctime(time.time()))
-                #print(time.ctime(start_time))
-
-                elapsed_time = 0  # Initialize elapsed time to zero
-                while elapsed_time < duration:
-                    time.sleep(1)  # Delay 1 second
-                    elapsed_time += 1  # Increment the elapsed time by 1 second
-                    print(elapsed_time)
-                    if cv2.waitKey(1) == ord('b'):
-                        crop_img = False
-                        break 
+                if time.time() - start_time >= duration:
+                    # Extract the text from the cropped image
+                    temp = (pytesseract.image_to_string(crop, lang='eng', config='--psm 6'))
+                    temp = temp.replace('\n', '')
+                    # Append the data to the list
+                    data.append([time.ctime(start_time), temp])
+                    print(temp)
+                    print('Current Time:', time.ctime(time.time()))
+                    start_time = None
+                    with open(os.path.join(current_dir, 'data.csv'), 'w', newline='') as csvfile:
+                        writer = csv.writer(csvfile)
+                        #writer.writerow(['Timestamp', 'Temp'])
+                        writer.writerows(data)
             else:
                 cv2.imshow('Edges', edges)
-        elif paused and click_start is not None and click_end is not None:
+        if paused and click_start is not None and click_end is not None:
             image = edges.copy()
+            start_point = click_start
+            end_point = click_end
             color = (255, 0, 0)
             thickness = 2
             image = cv2.rectangle(image, click_start, click_end, color, thickness)
-            crop = edges[click_start[1]:click_end[1], click_start[0]:click_end[0]]
             crop_img = True
             cv2.imshow('Edges', image)
-
+        if click_start is not None and click_end is not None:
+            print("Mouse click start:", click_start)
+            print("Mouse click end:", click_end)
+            click_start = None
+            click_end = None
+            
 
     cv2.destroyAllWindows()
     cap.release()

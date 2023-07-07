@@ -10,11 +10,25 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 
-def on_mouse(event, x, y, click_start, click_end):
+def on_mouse(event, x, y, flags, param):
+    global click_start, click_end, start_mouse_tracking
     if start_mouse_tracking and event == cv2.EVENT_LBUTTONDOWN:
         click_start = (x, y)
+        print("Mouse click start:", click_start)
     elif start_mouse_tracking and event == cv2.EVENT_LBUTTONUP:
         click_end = (x, y)
+        print("Mouse click end:", click_end)
+
+def key_press(key):
+    # Wait for Esc key to stop
+    if key == 27:
+        return "Escape"
+    # Start mouse tracking when "Space Bar" key is pressed
+    if key == 32:
+        return "Space Bar"
+
+    if key == ord('b'):
+        return 'B'
 
 def animate(i, xs, ys, count,data, paused, click_start, click_end, start_mouse_tracking, crop_img, duration, start):
     _, frame = cap.read()
@@ -25,7 +39,7 @@ def animate(i, xs, ys, count,data, paused, click_start, click_end, start_mouse_t
     if not paused:
         if crop_img == True:
             start_time = time.time()
-
+                
             crop = edges[start_point[1]:end_point[1], start_point[0]:end_point[0]]
             cv2.imshow('Edges', crop)
             
@@ -95,16 +109,8 @@ def animate(i, xs, ys, count,data, paused, click_start, click_end, start_mouse_t
         click_end = None
 
 if __name__ == '__main__':
-    #global count, data, paused, crop_img, duration, start, click_start, click_end, start_mouse_tracking
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
-    xs = []
-    ys = []
-
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-
     current_dir = os.getcwd()
-
     count = 0
     data = []
     paused = False
@@ -115,12 +121,15 @@ if __name__ == '__main__':
     duration = 180
     start = True
 
-    
-
-
-    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    #,cv2.CAP_DSHOW
+    cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
     cv2.namedWindow('Edges')
     cv2.setMouseCallback('Edges', on_mouse)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    xs = []
+    ys = []
     
     ani = animation.FuncAnimation(fig, animate, fargs=(xs, ys, count, data, paused, click_start, click_end, start_mouse_tracking, crop_img, duration, start), interval=1)
     
