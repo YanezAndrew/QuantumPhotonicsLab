@@ -97,8 +97,6 @@ if __name__ == "__main__":
             crop_img = True
             cv2.imshow('Edges', image)
         if click_start is not None and click_end is not None:
-            print("Mouse click start:", click_start)
-            print("Mouse click end:", click_end)
             click_start = None
             click_end = None
             
