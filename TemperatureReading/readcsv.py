@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib import style
-import datetime
+from datetime import datetime
+import os
 
 def read_data(filename):
     with open(filename, 'r') as file:
@@ -17,7 +18,7 @@ def read_data(filename):
 def animate(i):
     xs = []
     ys = []
-    for timestamp, value in read_data('data.csv'):
+    for timestamp, value in read_data(file_path):
         xs.append(timestamp)
         ys.append(value)
     
@@ -25,7 +26,7 @@ def animate(i):
     ax.plot(xs, ys, '-o')
     ax.set_xlabel('Time')
     ax.set_ylabel('Temp (K)')
-    date_str = datetime.datetime.now().strftime('%B %d')
+    date_str = datetime.now().strftime('%B %d')
     ax.text(0.95, 0.95, date_str, transform=ax.transAxes,
              horizontalalignment='right', verticalalignment='top', fontsize=12)
     
@@ -37,6 +38,14 @@ def animate(i):
 
 if __name__ == "__main__":
     #style.use('fivethirtyeight')
+    
+    current_dir = os.getcwd()
+    # Get the current date
+    current_date = datetime.now().strftime('%Y-%m-%d')
+
+    # File name with the current date
+    file_name = f"data_{current_date}.csv"
+
 
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)

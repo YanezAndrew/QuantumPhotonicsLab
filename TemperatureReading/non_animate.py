@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 import pytesseract
 import time
-import datetime as dt
 import csv
 import os
 import pandas as pd
@@ -10,7 +9,8 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib import style
 import time
-import subprocess
+from datetime import datetime
+
 
 def on_mouse(event, x, y, flags, param):
     global click_start, click_end, start_mouse_tracking
@@ -35,6 +35,15 @@ def key_press(key):
 if __name__ == "__main__":
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
     current_dir = os.getcwd()
+    # Get the current date
+    current_date = datetime.now().strftime('%Y-%m-%d')
+
+    # File name with the current date
+    file_name = f"data_{current_date}.csv"
+
+    # Path to the file in the current directory
+    file_path = os.path.join(current_dir, file_name)
+
     count = 0
     data = []
     paused = False
@@ -81,7 +90,7 @@ if __name__ == "__main__":
                     print(temp)
                     print('Current Time:', time.ctime(time.time()))
                     start_time = None
-                    with open(os.path.join(current_dir, 'data.csv'), 'w', newline='') as csvfile:
+                    with open(os.path.join(current_dir, file_path), 'w', newline='') as csvfile:
                         writer = csv.writer(csvfile)
                         #writer.writerow(['Timestamp', 'Temp'])
                         writer.writerows(data)
