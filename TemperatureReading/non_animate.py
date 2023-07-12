@@ -37,9 +37,9 @@ if __name__ == "__main__":
     current_dir = os.getcwd()
     # Get the current date
     current_date = datetime.now().strftime('%Y-%m-%d')
-
+    cnt = 0
     # File name with the current date
-    file_name = f"data_{current_date}.csv"
+    file_name = f"data_{current_date} ({cnt}).csv"
 
     # Path to the file in the current directory
     file_path = os.path.join(current_dir, file_name)
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     
     
     # If the file already exists, add a number to the file name
-    cnt = 1
+
     while file_exists:
         file_name = f"data_{current_date} ({cnt}).csv"
         file_path = os.path.join(current_dir, file_name)
