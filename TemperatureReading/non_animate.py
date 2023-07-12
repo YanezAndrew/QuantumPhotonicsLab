@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 import pytesseract
 import time
-import datetime as dt
 import csv
 import os
 import pandas as pd
@@ -10,7 +9,8 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib import style
 import time
-import subprocess
+from datetime import datetime
+
 
 def on_mouse(event, x, y, flags, param):
     global click_start, click_end, start_mouse_tracking
@@ -35,6 +35,27 @@ def key_press(key):
 if __name__ == "__main__":
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
     current_dir = os.getcwd()
+    # Get the current date
+    current_date = datetime.now().strftime('%Y-%m-%d')
+
+    # File name with the current date
+    file_name = f"data_{current_date}.csv"
+
+    # Path to the file in the current directory
+    file_path = os.path.join(current_dir, file_name)
+
+    # Check if the file already exists
+    file_exists = os.path.exists(file_path)
+    
+    
+    # If the file already exists, add a number to the file name
+    cnt = 1
+    while file_exists:
+        file_name = f"data_{current_date} ({cnt}).csv"
+        file_path = os.path.join(current_dir, file_name)
+        file_exists = os.path.exists(file_path)
+        cnt += 1
+
     count = 0
     data = []
     paused = False
@@ -81,7 +102,7 @@ if __name__ == "__main__":
                     print(temp)
                     print('Current Time:', time.ctime(time.time()))
                     start_time = None
-                    with open(os.path.join(current_dir, 'data.csv'), 'w', newline='') as csvfile:
+                    with open(os.path.join(current_dir, file_path), 'w', newline='') as csvfile:
                         writer = csv.writer(csvfile)
                         #writer.writerow(['Timestamp', 'Temp'])
                         writer.writerows(data)
@@ -97,8 +118,6 @@ if __name__ == "__main__":
             crop_img = True
             cv2.imshow('Edges', image)
         if click_start is not None and click_end is not None:
-            print("Mouse click start:", click_start)
-            print("Mouse click end:", click_end)
             click_start = None
             click_end = None
             
