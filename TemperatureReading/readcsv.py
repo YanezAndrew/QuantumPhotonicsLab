@@ -53,12 +53,16 @@ if __name__ == "__main__":
     file_exists = os.path.exists(file_path)
     
     # If the file already exists, add a number to the file name
-    while (file_exists == False):
+    while (file_exists):
         file_name = f"data_{current_date} ({cnt}).csv"
         file_path = os.path.join(current_dir, file_name)
         file_exists = os.path.exists(file_path)
         cnt += 1
-
+    file_name = f"data_{current_date} ({cnt - 2}).csv"
+    if (cnt == -2):
+        print("No File Created For Today")
+        
+    file_path = os.path.join(current_dir, file_name)
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     

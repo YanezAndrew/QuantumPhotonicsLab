@@ -31,6 +31,19 @@ def key_press(key):
 
     if key == ord('b'):
         return 'B'
+    
+def create_csv_file(file_path):
+    filename = 'data.csv'  # Specify the name of the CSV file
+    
+    # Check if the file already exists
+    if os.path.exists(filename):
+        print(f"File '{filename}' already exists.")
+        return
+    
+    # Open the file in write mode
+    with open(file_path, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+    
 
 if __name__ == "__main__":
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
@@ -55,6 +68,8 @@ if __name__ == "__main__":
         file_path = os.path.join(current_dir, file_name)
         file_exists = os.path.exists(file_path)
         cnt += 1
+    # Initialize CSV File
+    create_csv_file(file_path)
 
     count = 0
     data = []
@@ -63,7 +78,7 @@ if __name__ == "__main__":
     click_end = None
     start_mouse_tracking = False
     crop_img = False
-    duration = 5
+    duration = 60
     start = True
     start_time = None
 
@@ -89,9 +104,9 @@ if __name__ == "__main__":
         edges = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         if not paused:
             if crop_img == True:
+                crop = edges[start_point[1]:end_point[1], start_point[0]:end_point[0]]
                 if start_time is None:  # Check if start_time is not set
                     start_time = time.time()
-                crop = edges[start_point[1]:end_point[1], start_point[0]:end_point[0]]
                 cv2.imshow('Edges', crop)
                 if time.time() - start_time >= duration:
                     # Extract the text from the cropped image
@@ -102,7 +117,7 @@ if __name__ == "__main__":
                     print(temp)
                     print('Current Time:', time.ctime(time.time()))
                     start_time = None
-                    with open(os.path.join(current_dir, file_path), 'w', newline='') as csvfile:
+                    with open(file_path, 'w', newline='') as csvfile:
                         writer = csv.writer(csvfile)
                         #writer.writerow(['Timestamp', 'Temp'])
                         writer.writerows(data)
