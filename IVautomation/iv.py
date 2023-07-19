@@ -2,7 +2,10 @@ import pyvisa as pv
 import time
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
 
+def func(x, m, c):
+    return m * x + c
 
 def single_IV_sweep(keysight=None, channel=1, start=0, stop=10, points=10, aper=1E-4, current_compliance=0.1):
     '''
@@ -29,10 +32,6 @@ def single_IV_sweep(keysight=None, channel=1, start=0, stop=10, points=10, aper=
     # keysight.write(":SENSE:CURR:RANG:AUTO:LLIM 1E-9") # 1nA
 
     # Trigger
-    ioObj.WriteString(":SOUR:VOLT:MODE LIST")
-
-    ioObj.WriteString(":SOUR:LIST:VOLT 0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1")
-
     keysight.write(":TRIG:SOUR AINT")
     keysight.write(":TRIG:COUN " + str(points))
 
@@ -41,14 +40,17 @@ def single_IV_sweep(keysight=None, channel=1, start=0, stop=10, points=10, aper=
     keysight.write(":OUTP" + str(channel) + " ON")
     keysight.write(":INIT (@" + str(channel) + ")")
     keysight.write(":FETC:ARR:CURR? (@" + str(channel) + ")")
-    #
+    data = keysight.read()
+    '''
+    #ioObj.WriteString(":#SOUR:VOLT:MODE LIST")
+    #ioObj.WriteString(":SOUR:LIST:VOLT 0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1")
+
     keysight.write(":DISP:ENAB ON")
     keysight.write(":DISP:VIEW GRAP")
     keysight.write(":HCOP:SDUM:FORM JPG")
     keysight.write("*OPC?") 
-    data = keysight.read()
     keysight.write(":HCOP:SDUM:DATA?")
-    #
+    '''
     keysight.write(":OUTP" + str(channel) + " OFF")
 
 
@@ -92,14 +94,13 @@ time.sleep(0.1)
 # initializing the parameters
 start = 0
 stop = 1
-points = 75
+points = 5
 save_file = False
 
 volt_list = np.linspace(start, stop, points)
 M = np.zeros((10, points))
 for i in range(10):
     M[i] = single_IV_sweep(keysight, 1, start, stop, points, aper=0.005, current_compliance=2e-4) #2e-4 for a 56k Ohm Resistor
-
 
 # data = single_IV_sweep(keysight,1, start,stop,points, nplc=0.2, current_compliance=10e-9)
 # m = np.zeros((2, points), dtype=np.float64) # m is the matrix where the first row is the voltage, and the second row is corresponding current
@@ -118,12 +119,26 @@ if save_file:
 
 keysight.close()
 
-plt.scatter(np.linspace(start, stop, points), np.mean(M, axis=0), s=6)
+x = list(np.linspace(start, stop, points))
+y = list(np.mean(M, axis=0))
+
+params, covariance = curve_fit(func, x, y)
+m_fit, c_fit = params
+slope = m_fit
+print("Slope: ", slope)
+
+x_fit = np.linspace(min(x), max(x), 100)
+y_fit = func(x_fit, m_fit, c_fit)
+plt.scatter(x, y, s=6)
+slope_text = f"Slope: {slope}"
+
+plt.plot(x_fit, y_fit, linestyle='--', color='red', label=f'Fitted Line ({slope_text})')
+
+print("volts",x)
+print("amps",y)
+
 plt.title("Diode IV")
+plt.xlabel('Voltage(V)')
+plt.ylabel('Current(Amps?)')
+plt.legend()
 plt.show()
-# print(np.mean(M, axis=0))
-# print(np.mean(M, axis=0).shape)
-# plt.scatter(np.linspace(start, stop, points), data - np.linspace(start, stop,points) * para[0] - para[1])
-# plt.show()
-#
-# print("Noise level: ", np.std(data - np.linspace(start, stop,points) * para[0] - para[1]))
