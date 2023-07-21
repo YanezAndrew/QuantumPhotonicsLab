@@ -1,40 +1,27 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-from matplotlib import style
 from datetime import datetime
 import os
+import pandas as pd
 
-def read_data(filename):
-    with open(filename, 'r') as file:
-        for line in file:
-            line = line.strip()
-            if line:
-                try:
-                    timestamp, value = line.split(',')
-                    yield timestamp[10:19], float(value)
-                except (ValueError, IndexError):
-                    continue
+def update(frame):
+    # Get the data for the current frame
+    x_data = df['Time'].iloc[:frame]  # Assuming 'Time' is the column name for the x-axis data
+    y_data = df['Temperature'].iloc[:frame]  # Assuming 'Temperature' is the column name for the y-axis data
 
-def animate(i):
-    xs = []
-    ys = []
-    for timestamp, value in read_data(file_path):
-        xs.append(timestamp)
-        ys.append(value)
-    
-    ax.clear()
-    ax.plot(xs, ys, '-o')
+    # Update the line data
+    line.set_data(x_data, y_data)
+
+    # Set plot title and labels (optional)
+    ax.set_title('Live Temperature Plot')
     ax.set_xlabel('Time')
-    ax.set_ylabel('Temp (K)')
-    date_str = datetime.now().strftime('%B %d')
-    ax.text(0.95, 0.95, date_str, transform=ax.transAxes,
-             horizontalalignment='right', verticalalignment='top', fontsize=12)
-    
-    # Limit the number of x-values shown per time
-    tick_frequency = 1  # Show a tick every 5 data points
-    ax.set_xticks(ax.get_xticks()[::tick_frequency])
-    for tick in ax.get_xticklabels():
-        tick.set_rotation(90)
+    ax.set_ylabel('Temperature')
+
+    # Adjust plot limits (optional)
+    ax.set_xlim(x_data.min(), x_data.max())
+    ax.set_ylim(y_data.min(), y_data.max())
+
+    return line,
 
 if __name__ == "__main__":
     #style.use('fivethirtyeight')
@@ -61,10 +48,12 @@ if __name__ == "__main__":
     file_name = f"data_{current_date} ({cnt - 2}).csv"
     if (cnt == -2):
         print("No File Created For Today")
-        
-    file_path = os.path.join(current_dir, file_name)
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
     
-    ani = animation.FuncAnimation(fig, animate, interval=1000)
+    file_path = os.path.join(current_dir, file_name)
+    df = pd.read_csv(file_path)
+
+    fig, ax = plt.subplots()
+    line, = ax.plot([], [], lw=2)
+    
+    ani = animation.FuncAnimation(fig, update, interval=1000)
     plt.show()

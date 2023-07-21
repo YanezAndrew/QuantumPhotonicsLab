@@ -11,6 +11,7 @@ import pyvisa as pv
 from matplotlib import style
 import time
 from datetime import datetime
+import pandas as pd
 from scipy.optimize import curve_fit
 
 def on_mouse(event, x, y, flags, param):
@@ -193,9 +194,9 @@ if __name__ == "__main__":
         if not paused:
             if crop_img == True:
                 crop = edges[start_point[1]:end_point[1], start_point[0]:end_point[0]]
-                if start_time is None:  # Check if start_time is not set
-                    start_time = time.time()
                 cv2.imshow('Edges', crop)
+                cv2.imshow('Edges', crop)
+                start_time = time.time()
                 if time.time() - start_time >= duration or reading_count == 0:
                     print(reading_count)
                     reading_count +=1
@@ -210,18 +211,20 @@ if __name__ == "__main__":
                     params, covariance = curve_fit(func, x, y)
                     m_fit, c_fit = params
                     slope = m_fit
-                    print("Slope: ", slope)
+                    # resistance is Volts / Amps
+                    resistance = stop / slope
                     ###########
-                    
+
 
                     # Extract the text from the cropped image
-                    temp = (pytesseract.image_to_string(crop, lang='eng', config='--psm 6'))
-                    temp = temp.replace('\n', '')
+                    temp = (pytesseract.image_to_string(crop, lang='eng', config='--psm 6')).replace('\n', '')
+
                     # Append the data to the list
-                    data.append([time.ctime(start_time), temp])
-                    print(temp)
+                    data.append([time.ctime(start_time), temp, x, y, resistance])
+                    df = pd.DataFrame(data, columns=['Time', 'Temperature', 'Voltage', 'Resistance'])
+                    print(temp, resistance)
                     print('Current Time:', time.ctime(time.time()))
-                    start_time = None
+
                     with open(file_path, 'w', newline='') as csvfile:
                         writer = csv.writer(csvfile)
                         #writer.writerow(['Timestamp', 'Temp'])
