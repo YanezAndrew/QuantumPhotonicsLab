@@ -7,19 +7,12 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import pyvisa as pv
 from matplotlib import style
 import time
 from datetime import datetime
 
-
-def on_mouse(event, x, y, flags, param):
-    global click_start, click_end, start_mouse_tracking
-    if start_mouse_tracking and event == cv2.EVENT_LBUTTONDOWN:
-        click_start = (x, y)
-        print("Mouse click start:", click_start)
-    elif start_mouse_tracking and event == cv2.EVENT_LBUTTONUP:
-        click_end = (x, y)
-        print("Mouse click end:", click_end)
+#pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 def key_press(key):
     # Wait for Esc key to stop
@@ -43,7 +36,7 @@ def create_csv_file(file_path):
     # Open the file in write mode
     with open(file_path, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-"""
+
 def single_IV_sweep(keysight=None, channel=1, start=0, stop=10, points=10, aper=1E-4, current_compliance=0.1):
     '''
         Remember to connect, initialze keysight and import numpy before executing this function!
@@ -87,4 +80,21 @@ def single_IV_sweep(keysight=None, channel=1, start=0, stop=10, points=10, aper=
         current_list[i] = float(l[i])
 
     return current_list
-"""
+
+def intialize_device():
+    keysight_usb_id = 'USB0::0x0957::0x8C18::MY51145486::INSTR'
+    rm = pv.ResourceManager()
+    print(rm)
+    print(rm.list_resources())
+    try:
+        keysight = rm.open_resource(keysight_usb_id) # open Keysight according to the usb id of keysight that comes along with it.
+    except:
+        print("Failed to connect to Keysight. Please check your connection")
+        exit(1)
+    '''
+    code for testing if keysight is connected successfully
+    '''
+    print(keysight)
+    print(keysight.query('*IDN?')) # return ID information
+    keysight.write('*RST') # to reset all setup on the keysight
+    time.sleep(0.1)
