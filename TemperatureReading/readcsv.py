@@ -3,25 +3,23 @@ import matplotlib.animation as animation
 from datetime import datetime
 import os
 import pandas as pd
+import ast
 
 def update(frame):
     # Get the data for the current frame
-    x_data = df['Time'].iloc[:frame]  # Assuming 'Time' is the column name for the x-axis data
-    y_data = df['Temperature'].iloc[:frame]  # Assuming 'Temperature' is the column name for the y-axis data
+    x_data = df['Temperature'].iloc[:frame] 
+    y_data = df['Resistance'].iloc[:frame]
 
     # Update the line data
     line.set_data(x_data, y_data)
 
     # Set plot title and labels (optional)
     ax.set_title('Live Temperature Plot')
-    ax.set_xlabel('Time')
-    ax.set_ylabel('Temperature')
+    ax.set_xlabel('Temperature')
+    ax.set_ylabel('Resistance')
 
-    # Adjust plot limits (optional)
-    ax.set_xlim(x_data.min(), x_data.max())
-    ax.set_ylim(y_data.min(), y_data.max())
 
-    return line,
+    return line
 
 if __name__ == "__main__":
     #style.use('fivethirtyeight')
@@ -50,10 +48,12 @@ if __name__ == "__main__":
         print("No File Created For Today")
     
     file_path = os.path.join(current_dir, file_name)
+    print(file_path)
     df = pd.read_csv(file_path)
+    print(df)
 
     fig, ax = plt.subplots()
     line, = ax.plot([], [], lw=2)
     
-    ani = animation.FuncAnimation(fig, update, interval=1000)
+    ani = animation.FuncAnimation(fig, update, frames=len(df), interval=1000)
     plt.show()

@@ -195,8 +195,8 @@ if __name__ == "__main__":
             if crop_img == True:
                 crop = edges[start_point[1]:end_point[1], start_point[0]:end_point[0]]
                 cv2.imshow('Edges', crop)
-                cv2.imshow('Edges', crop)
-                start_time = time.time()
+                if start_time == None:
+                    start_time = time.time()
                 if time.time() - start_time >= duration or reading_count == 0:
                     print(reading_count)
                     reading_count +=1
@@ -204,7 +204,7 @@ if __name__ == "__main__":
                     M = np.zeros((10, points))
                     for i in range(10):
                         M[i] = single_IV_sweep(keysight, 1, start, stop, points, current_compliance=2e-4)
-                        
+                    print(type(np.linspace(start, stop, points)))
                     x = list(np.linspace(start, stop, points))
                     y = list(np.mean(M, axis=0))
                        
@@ -221,14 +221,13 @@ if __name__ == "__main__":
 
                     # Append the data to the list
                     data.append([time.ctime(start_time), temp, x, y, resistance])
-                    df = pd.DataFrame(data, columns=['Time', 'Temperature', 'Voltage', 'Resistance'])
+                    df = pd.DataFrame(data, columns=['Time', 'Temperature', 'Voltage','Amps', 'Resistance'])
+                    print(df.dtypes)
                     print(temp, resistance)
                     print('Current Time:', time.ctime(time.time()))
-
-                    with open(file_path, 'w', newline='') as csvfile:
-                        writer = csv.writer(csvfile)
-                        #writer.writerow(['Timestamp', 'Temp'])
-                        writer.writerows(data)
+                    start_time = None
+                    print(df['Temperature'])
+                    df.to_csv(file_path, index=False)
             else:
                 cv2.imshow('Edges', edges)
         if paused and click_start is not None and click_end is not None:
