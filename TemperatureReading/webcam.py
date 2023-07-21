@@ -11,6 +11,7 @@ import pyvisa as pv
 from matplotlib import style
 import time
 from datetime import datetime
+from scipy.optimize import curve_fit
 
 def on_mouse(event, x, y, flags, param):
     global click_start, click_end, start_mouse_tracking
@@ -105,7 +106,8 @@ def intialize_device():
     keysight.write('*RST') # to reset all setup on the keysight
     time.sleep(0.1)   
 
-
+def func(x, m, c):
+    return m * x + c
 
 if __name__ == "__main__":
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
@@ -132,7 +134,7 @@ if __name__ == "__main__":
         cnt += 1
     # Initialize CSV File
     create_csv_file(file_path)
-
+    reading_count = 0
     count = 0
     data = []
     paused = False
@@ -140,13 +142,30 @@ if __name__ == "__main__":
     click_end = None
     start_mouse_tracking = False
     crop_img = False
-    duration = 60
+    duration = 10
     start = True
     start_time = None
 
 
-    intialize_device()
-    start = -1
+    #intialize_device()
+    keysight_usb_id = 'USB0::0x0957::0x8C18::MY51145486::INSTR'
+    rm = pv.ResourceManager()
+    print(rm)
+    print(rm.list_resources())
+    try:
+        keysight = rm.open_resource(keysight_usb_id) # open Keysight according to the usb id of keysight that comes along with it.
+    except:
+        print("Failed to connect to Keysight. Please check your connection")
+        exit(1)
+    '''
+    code for testing if keysight is connected successfully
+    '''
+    print(keysight)
+    print(keysight.query('*IDN?')) # return ID information
+    keysight.write('*RST') # to reset all setup on the keysight
+    time.sleep(0.1)
+
+    start = 0
     stop = 1
     points = 5
     save_file = False
@@ -177,13 +196,21 @@ if __name__ == "__main__":
                 if start_time is None:  # Check if start_time is not set
                     start_time = time.time()
                 cv2.imshow('Edges', crop)
-                if time.time() - start_time >= duration:
-
+                if time.time() - start_time >= duration or reading_count == 0:
+                    print(reading_count)
+                    reading_count +=1
                     ###########
                     M = np.zeros((10, points))
                     for i in range(10):
                         M[i] = single_IV_sweep(keysight, 1, start, stop, points, current_compliance=2e-4)
-                    print(M)
+                        
+                    x = list(np.linspace(start, stop, points))
+                    y = list(np.mean(M, axis=0))
+                       
+                    params, covariance = curve_fit(func, x, y)
+                    m_fit, c_fit = params
+                    slope = m_fit
+                    print("Slope: ", slope)
                     ###########
                     
 
