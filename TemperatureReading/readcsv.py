@@ -29,7 +29,7 @@ def animate(frame):
 
     # Clear the previous plot (if any) and plot the new data
     plt.cla()
-    plt.plot(temperature_data, resistance_data)
+    plt.scatter(temperature_data, resistance_data)
 
     plt.title('Temperature vs. Resistance')
     plt.xlabel('Temperature (Kelvin)')
