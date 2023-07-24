@@ -3,24 +3,39 @@ import matplotlib.animation as animation
 from datetime import datetime
 import os
 import pandas as pd
-import ast
 
-def update(frame):
-    # Get the data for the current frame
-    x_data = df['Temperature'].iloc[:frame] 
-    y_data = df['Resistance'].iloc[:frame]
+# def read_data(filename):
+#     value_in_desired_row = df.loc[desired_row_index, Temperature]
+#     df = pd.read_csv('data.csv', index_col=0)
 
-    # Update the line data
-    line.set_data(x_data, y_data)
+def read_new_data():
+    # Replace this with code to read new data from the data source
+    # For example, you can use pd.read_csv(), API calls, or any other method to fetch new data
+    new_data = pd.read_csv(file_path)
+    return new_data
 
-    # Set plot title and labels (optional)
-    ax.set_title('Live Temperature Plot')
-    ax.set_xlabel('Temperature')
-    ax.set_ylabel('Resistance')
+def animate(frame):
+    global df
+    new_data = read_new_data()
 
+    # Check if new data is available and update the DataFrame
+    if not new_data.empty and not new_data.equals(df):
+        df = new_data
 
-    return line
+    # Here, you can plot/animate the data in 'df'
+    # For example, if you have 'temperature' and 'resistance' columns to plot, you can do the following:
+    temperature_data = df['Temperature']
+    resistance_data = df['Resistance']
 
+    # Clear the previous plot (if any) and plot the new data
+    plt.cla()
+    plt.plot(temperature_data, resistance_data)
+
+    plt.title('Temperature vs. Resistance')
+    plt.xlabel('Temperature (Kelvin)')
+    plt.ylabel('Resistance (Ohms)')
+
+    # Additional plot settings, labels, etc., can be added here
 if __name__ == "__main__":
     #style.use('fivethirtyeight')
     current_dir = os.getcwd()
@@ -48,12 +63,14 @@ if __name__ == "__main__":
         print("No File Created For Today")
     
     file_path = os.path.join(current_dir, file_name)
+
+
+
+
+
     print(file_path)
     df = pd.read_csv(file_path)
-    print(df)
-
-    fig, ax = plt.subplots()
-    line, = ax.plot([], [], lw=2)
+    #print(df)
     
-    ani = animation.FuncAnimation(fig, update, frames=len(df), interval=1000)
+    ani = animation.FuncAnimation(plt.gcf(), animate, frames=len(df), interval=1000)
     plt.show()
