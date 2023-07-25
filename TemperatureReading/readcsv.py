@@ -11,7 +11,8 @@ import pandas as pd
 def read_new_data():
     # Replace this with code to read new data from the data source
     # For example, you can use pd.read_csv(), API calls, or any other method to fetch new data
-    new_data = pd.read_csv(file_path)
+    new_data = pd.read_csv(file_path, parse_dates=['Time'])
+    new_data.sort_values(by='Time', inplace=True)
     return new_data
 
 def animate(frame):
