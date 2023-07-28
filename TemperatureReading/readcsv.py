@@ -60,18 +60,13 @@ if __name__ == "__main__":
         file_exists = os.path.exists(file_path)
         cnt += 1
     file_name = f"data_{current_date} ({cnt - 2}).csv"
-    if (cnt == -2):
-        print("No File Created For Today")
-    
-    file_path = os.path.join(current_dir, file_name)
-
-
-
-
-
-    print(file_path)
-    df = pd.read_csv(file_path)
-    #print(df)
-    
-    ani = animation.FuncAnimation(plt.gcf(), animate, frames=len(df), interval=1000)
-    plt.show()
+    if (cnt == 0):
+        print("No File Created For Today or Not in Temperature Reading Directory")
+    else:
+        file_path = os.path.join(current_dir, file_name)
+        print(file_path)
+        df = pd.read_csv(file_path)
+        #print(df)
+        
+        ani = animation.FuncAnimation(plt.gcf(), animate, frames=len(df), interval=1000)
+        plt.show()
