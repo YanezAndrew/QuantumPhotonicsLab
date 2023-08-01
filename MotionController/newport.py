@@ -66,6 +66,18 @@ def sweep(x_list, y_list, x_max, y_max, x_steps, y_steps, increment):
             * *
     * * * * * *
 
+
+    There are two lists running here:
+        x_list
+        y_list
+    x_list: 
+        Right:
+            has the point it will shoot the laser appended to the top of the list
+        Left:
+            has the point is about to move appended from the list
+    y_list:
+        has the point it will move to appended to the top
+
     
     """
     # axis_x.move_to(0) This is to move to (0,0)
@@ -119,7 +131,7 @@ def sweep(x_list, y_list, x_max, y_max, x_steps, y_steps, increment):
             plt.scatter(x, y, color='blue', marker='o')
 
             curr_value += increment
-            #
+            # Shoot Laser and then Move
             #
             move_right(x_list)
             #
