@@ -1,9 +1,21 @@
 from newportESP302 import ESP
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import time
 import sys
 import math
 import time
 
-
+def customize_plot(ax, x_steps, y_steps, padding = 0.2):
+    ax.set_xlim(-padding, x_steps + padding -1)
+    ax.set_ylim(-padding, y_steps + padding -1)
+    ax.set_xticks(range(x_steps))
+    ax.set_yticks(range(y_steps))
+    ax.grid(True)
+    ax.set_xlabel('X Position')
+    ax.set_ylabel('Y Position')
+    ax.set_title('Sweep Motion Visualization')
+    
 def get_increment():
     increment = float(input("Enter How Precise the movement should be: "))
     return increment
@@ -47,45 +59,74 @@ def move_left(x_list, steps):
 #
 # , axis_x, axis_y)
 #
-def sweep(x_list, x_steps, y_steps, increment):
+def sweep(x_list, y_list, x_max, y_max, x_steps, y_steps, increment):
     """
 
     Sweeps The Laser Through the Grid In a Snake Like Motion
             * *
     * * * * * *
 
-
+    
     """
     # axis_x.move_to(0) This is to move to (0,0)
     # axis_y.move_to(1) This is to move to (0,0)
-    y_coord = 0.0
     print("X STEPS: ", x_steps)
     print("Y STEPS: ", y_steps)
     right = True
     left = False
     curr_value = 0.0
-    # while y_list is not empty
-    while(y_coord != y_steps):
-        #print("YCOORD: ",y_coord)
+
+
+    fig, ax = plt.subplots()
+    customize_plot(ax, x_steps, y_steps)
+    y_list.append(0.0)
+
+
+
+    while(len(y_list) -1 != y_steps):
+        #print("Y: ", len(y_list) -1)
         if (left):
             if len(x_list) == 0:
-                y_coord += 1
+                y_list.append(round(y_list[-1] + increment, 1))
+                # axis_x.move_by(increment)
                 right = True
                 left = False
-                curr_value = 0
+                curr_value = 0.0
                 continue
+            x = len(x_list) - 1
+            y = len(y_list) - 1
+            #print(x, y)
+            plt.scatter(x, y, color='blue', marker='o')
             curr_value = x_list.pop()
+
+            #
+            #
             move_left(x_list, x_steps)
+            #
+            #
+
         elif (right):
             if (len(x_list) == x_steps):
-                y_coord +=1
+                y_list.append(y_list[-1] + increment)
+                # axis_x.move_by(increment)
                 left = True
                 right = False
                 continue
             x_list.append((round(curr_value, 1)))
-            move_right(x_list)
+            x = len(x_list) - 1
+            y = len(y_list) - 1
+            #print(x, y)
+            plt.scatter(x, y, color='blue', marker='o')
+
             curr_value += increment
-    #print("YCOORD: ",y_coord)
+            #
+            #
+            move_right(x_list)
+            #
+            #
+        plt.pause(0.01)  # Pause for 0.01 seconds to show each step
+
+    plt.show()
     
             
             
@@ -102,32 +143,39 @@ if __name__ == '__main__':
     # except Exception as e:
     #     print("ESP initialization failed:", e, "\n\n\n")
     #     sys.exit(1)
+   
+
     x_list = []
+    y_list = []
 
     # get_x()
     x = 1.0
     # get_y()
-    y = 2
+    y = 0.5
     # get_increment()
     increment = 0.1
 
-    x_steps = int(x / increment)
-    y_steps = int(y / increment)
+    x_steps = int(x / increment) + 1
+    y_steps = int(y / increment) + 1
 
-
+    print("Resolution: ", x_steps, " x " , y_steps)
     start_sweep = False
 
     start_sweep = '1'
     #input("Type 1 if Ready to Start Sweep and 0 if NOT ready:")
 
 
-
+    
     if (start_sweep == '1'):
         # esp
         #
         # , axis_x, axis_y)
         #
-        sweep(x_list, x_steps, y_steps, increment)
+
+        # Create the figure and axis
+        sweep(x_list, y_list, x, y, x_steps, y_steps, increment)
+        # Set up the animation
+        
 
     # print(x_list)
     # print(len(x_list))
