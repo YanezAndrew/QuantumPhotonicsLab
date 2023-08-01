@@ -4,15 +4,17 @@ import math
 import time
 
 
-def get_increment(x_size):
+def get_increment():
     increment = float(input("Enter How Precise the movement should be: "))
-    is_whole_number = (x_size / increment) % 1 == 0
-    if (is_whole_number == True):
-        print("Correct Increment Size")
-        return increment
-    else:
-        print("Increment Size Won't Be Equal Across the Chip")
-        get_increment(x_size)
+    return increment
+
+def get_x():
+    x = float(input("Enter Max X coord (mm): "))
+    return x
+
+def get_y():
+    y = float(input("Enter Max Y coord (mm): "))
+    return y
 
 def check_alignment():
     """
@@ -23,22 +25,29 @@ def check_alignment():
 
     """
 
+
+# , axis_x)
 def move_right(x_list):
     #print(len(x_list))
+    #axis_x.move_by(1)
     print(" *" * len(x_list))
 
+# , axis_x)
+
 def move_left(x_list, steps):
+    #axis_x.move_by(1)
     spaces = len(x_list) 
     stars = steps - spaces
     # print(x)
     # print(spaces)
-    
     print("  " * (spaces), "* " * stars)
 
 
 
-
-def sweep(x_list, x, y, increment):
+#
+# , axis_x, axis_y)
+#
+def sweep(x_list, x_steps, y_steps, increment):
     """
 
     Sweeps The Laser Through the Grid In a Snake Like Motion
@@ -47,31 +56,38 @@ def sweep(x_list, x, y, increment):
 
 
     """
-    #esp.move_to(0)
-    y_coord = 0
-    print("STEPS: ", steps)
+    # axis_x.move_to(0) This is to move to (0,0)
+    # axis_y.move_to(1) This is to move to (0,0)
+    y_coord = 0.0
+    print("X STEPS: ", x_steps)
+    print("Y STEPS: ", y_steps)
     right = True
     left = False
-    curr_value = 0
-    while(y_coord != y):
+    curr_value = 0.0
+    # while y_list is not empty
+    while(y_coord != y_steps):
+        #print("YCOORD: ",y_coord)
         if (left):
             if len(x_list) == 0:
-                y_coord +=1
+                y_coord += 1
                 right = True
                 left = False
                 curr_value = 0
                 continue
             curr_value = x_list.pop()
-            move_left(x_list, steps)
+            move_left(x_list, x_steps)
         elif (right):
-            if (len(x_list) == steps):
+            if (len(x_list) == x_steps):
                 y_coord +=1
                 left = True
                 right = False
                 continue
-            curr_value += increment
             x_list.append((round(curr_value, 1)))
             move_right(x_list)
+            curr_value += increment
+    #print("YCOORD: ",y_coord)
+    
+            
             
 
         
@@ -80,34 +96,40 @@ if __name__ == '__main__':
     # Checks if Device is Connected
     # try:
     #     esp = ESP('/dev/ttyUSB0')  
-    #     axis1 = esp.axis(1)
+    #     axis_x = esp.axis(1)
+    #     axis_y = esp.axis(2)
     #     print("ESP is initialized successfully!")
     # except Exception as e:
     #     print("ESP initialization failed:", e, "\n\n\n")
     #     sys.exit(1)
     x_list = []
 
-    x = int(input("Enter Max X coord (mm): "))
-    y = int(input("Enter Max Y coord (mm): "))
+    # get_x()
+    x = 1.0
+    # get_y()
+    y = 2
+    # get_increment()
+    increment = 0.1
 
-    #
-    # Gets Increment Size Needed
-    #
-    increment = get_increment(x)
+    x_steps = int(x / increment)
+    y_steps = int(y / increment)
 
-    steps = int(x / increment)
 
     start_sweep = False
 
-    start_sweep = input("Type 1 if Ready to Start Sweep and 0 if not ready:")
+    start_sweep = '1'
+    #input("Type 1 if Ready to Start Sweep and 0 if NOT ready:")
 
 
 
     if (start_sweep == '1'):
         # esp
-        sweep(x_list, x, y, increment)
+        #
+        # , axis_x, axis_y)
+        #
+        sweep(x_list, x_steps, y_steps, increment)
 
-    print(x_list)
-    print(len(x_list))
+    # print(x_list)
+    # print(len(x_list))
 
     #while(len(x_axis) != )
