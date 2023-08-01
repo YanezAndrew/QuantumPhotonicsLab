@@ -161,7 +161,7 @@ if __name__ == '__main__':
     y_list = []
 
     # get_x()
-    x = 1.0
+    x = 3.0
     # get_y()
     y = 0.5
     # get_increment()
