@@ -1,4 +1,4 @@
-from newportESP302 import ESP
+from ethernet_newport import ESP
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import time
@@ -41,13 +41,13 @@ def check_alignment():
 # , axis_x)
 def move_right(x_list):
     #print(len(x_list))
-    #axis_x.move_by(1)
+    axis_x.move_by(0.1)
     print(" *" * len(x_list))
 
 # , axis_x)
 
 def move_left(x_list, steps):
-    #axis_x.move_by(1)
+    axis_x.move_by(-0.1)
     spaces = len(x_list) 
     stars = steps - spaces
     # print(x)
@@ -59,7 +59,7 @@ def move_left(x_list, steps):
 #
 # , axis_x, axis_y)
 #
-def sweep(x_list, y_list, x_max, y_max, x_steps, y_steps, increment):
+def sweep(x_list, y_list, x_max, y_max, x_steps, y_steps, increment, axis_x, axis_y):
     """
 
     Sweeps The Laser Through the Grid In a Snake Like Motion
@@ -82,6 +82,8 @@ def sweep(x_list, y_list, x_max, y_max, x_steps, y_steps, increment):
     """
     # axis_x.move_to(0) This is to move to (0,0)
     # axis_y.move_to(1) This is to move to (0,0)
+    axis_x.move_to(0)
+    axis_y.move_to(0)
     print("X STEPS: ", x_steps)
     print("Y STEPS: ", y_steps)
     right = True
@@ -100,7 +102,7 @@ def sweep(x_list, y_list, x_max, y_max, x_steps, y_steps, increment):
         if (left):
             if len(x_list) == 0:
                 y_list.append(round(y_list[-1] + increment, 1))
-                # axis_x.move_by(increment)
+                axis_y.move_by(increment)
                 right = True
                 left = False
                 curr_value = 0.0
@@ -120,7 +122,7 @@ def sweep(x_list, y_list, x_max, y_max, x_steps, y_steps, increment):
         elif (right):
             if (len(x_list) == x_steps):
                 y_list.append(y_list[-1] + increment)
-                # axis_x.move_by(increment)
+                axis_y.move_by(increment)
                 left = True
                 right = False
                 continue
@@ -155,13 +157,16 @@ if __name__ == '__main__':
     # except Exception as e:
     #     print("ESP initialization failed:", e, "\n\n\n")
     #     sys.exit(1)
-   
-
+    device_ip = '192.168.254.254'
+    device_port = 5001
+    esp = ESP(device_ip, device_port)
+    axis_x = esp.axis(1)
+    axis_y = esp.axis(2)
     x_list = []
     y_list = []
 
     # get_x()
-    x = 3.0
+    x = 1.0
     # get_y()
     y = 0.5
     # get_increment()
@@ -181,11 +186,11 @@ if __name__ == '__main__':
     if (start_sweep == '1'):
         # esp
         #
-        # , axis_x, axis_y)
+        #
         #
 
         # Create the figure and axis
-        sweep(x_list, y_list, x, y, x_steps, y_steps, increment)
+        sweep(x_list, y_list, x, y, x_steps, y_steps, increment, axis_x, axis_y)
         # Set up the animation
         
 
