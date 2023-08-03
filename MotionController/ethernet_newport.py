@@ -130,9 +130,11 @@ class ESP(object):
     """    
     with self.lock:
       if check_error:
+        print('Before')
         self.raise_error()
       self.write(string+'?', axis=axis)
       if check_error:
+        print("after")
         self.raise_error()
       return self.read()
 
@@ -189,6 +191,10 @@ class Axis(object):
     self.abort = self.esp.abort    
     self.read_error = self.esp.read_error
   
+  # def __del__(self):
+  #   self.off()
+
+
   def write(self, string, axis=None):
     """ Send a command string to the axis.
      
@@ -224,6 +230,7 @@ class Axis(object):
     self.write("MO")
     
   def off(self):
+    print("offf")
     """Power off the axis."""
     self.write("MF")
 

@@ -39,15 +39,15 @@ def check_alignment():
 
 
 # , axis_x)
-def move_right(x_list):
+def move_right(x_list, increment):
     #print(len(x_list))
-    axis_x.move_by(0.1)
+    axis_x.move_by(increment)
     print(" *" * len(x_list))
 
 # , axis_x)
 
-def move_left(x_list, steps):
-    axis_x.move_by(-0.1)
+def move_left(x_list, steps, increment):
+    axis_x.move_by(-1 * increment)
     spaces = len(x_list) 
     stars = steps - spaces
     # print(x)
@@ -82,8 +82,6 @@ def sweep(x_list, y_list, x_max, y_max, x_steps, y_steps, increment, axis_x, axi
     """
     # axis_x.move_to(0) This is to move to (0,0)
     # axis_y.move_to(1) This is to move to (0,0)
-    axis_x.move_to(0)
-    axis_y.move_to(0)
     print("X STEPS: ", x_steps)
     print("Y STEPS: ", y_steps)
     right = True
@@ -110,15 +108,14 @@ def sweep(x_list, y_list, x_max, y_max, x_steps, y_steps, increment, axis_x, axi
             x = len(x_list) - 1
             y = len(y_list) - 1
             #print(x, y)
-            plt.scatter(x, y, color='blue', marker='o')
             curr_value = x_list.pop()
 
             #
             #
-            move_left(x_list, x_steps)
+            move_left(x_list, x_steps, increment)
             #
             #
-
+            plt.scatter(x, y, color='blue', marker='o')
         elif (right):
             if (len(x_list) == x_steps):
                 y_list.append(y_list[-1] + increment)
@@ -130,16 +127,16 @@ def sweep(x_list, y_list, x_max, y_max, x_steps, y_steps, increment, axis_x, axi
             x = len(x_list) - 1
             y = len(y_list) - 1
             #print(x, y)
-            plt.scatter(x, y, color='blue', marker='o')
 
             curr_value += increment
             # Shoot Laser and then Move
             #
-            move_right(x_list)
+            move_right(x_list, increment)
             #
             #
-        plt.pause(0.01)  # Pause for 0.01 seconds to show each step
+            plt.scatter(x, y, color='blue', marker='o')
 
+        plt.pause(0.01)  # Pause for 0.01 seconds to show each step
     plt.show()
     
             
@@ -162,6 +159,9 @@ if __name__ == '__main__':
     esp = ESP(device_ip, device_port)
     axis_x = esp.axis(1)
     axis_y = esp.axis(2)
+    axis_x.move_to(0)
+    axis_y.move_to(0)
+    
     x_list = []
     y_list = []
 
