@@ -1,1 +1,0 @@
-raise ImportError("'aux_libs' module has been moved into 'legacy'; replace 'pylablib.aux_libs' with 'pylablib.legacy.aux_libs'")

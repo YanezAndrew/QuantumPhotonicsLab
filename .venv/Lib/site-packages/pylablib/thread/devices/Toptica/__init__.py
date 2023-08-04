@@ -1,1 +1,0 @@
-from .ibeam import TopticaIBeamThread

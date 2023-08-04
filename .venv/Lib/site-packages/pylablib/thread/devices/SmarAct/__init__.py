@@ -1,1 +1,0 @@
-from .scu3d import SCU3DThread
