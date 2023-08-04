@@ -1,0 +1,1 @@
+from .base import LM500, CryomagneticsError
