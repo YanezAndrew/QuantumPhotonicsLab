@@ -4,6 +4,10 @@
 
 # --------------------------- Declarations and Imports
 
+
+# Newport ESP Module
+from ethernet_newport import ESP
+
 import clr
 
 # Import python sys module
@@ -58,6 +62,7 @@ enable_background = 1
 serialNumber = 2108112774
 center_wavelength = 780     #nm
 v_res = 1       # voltage spacing of the piezo
+increment = (10 ** -4) # 1 volt is around 100nm
 v_range =50  # total voltage movement of the piezo
 t_exp = 0.5     # exposure time in seconds
 x_step_range = v_range/v_res
@@ -65,299 +70,6 @@ y_step_range = v_range/v_res
 ROI_y_origin = 98
 ROI_y_height = 17
 
-# Function Definitions for the MDT693B
-def CommonFunc(serialNumber):
-    hdl = mdtOpen(serialNumber, 115200, 3)
-    # or check by "mdtIsOpen(devs[0])"
-    if (hdl < 0):
-        print("Connect ", serialNumber, "fail")
-        return -1
-    else:
-        print("Connect ", serialNumber, "successful")
-
-    result = mdtIsOpen(serialNumber)
-    print("mdtIsOpen ", result)
-
-    id = []
-    result = mdtGetId(hdl, id)
-    if (result < 0):
-        print("mdtGetId fail ", result)
-    else:
-        print(id)
-
-    limitVoltage = [0]
-    result = mdtGetLimtVoltage(hdl, limitVoltage)
-    if (result < 0):
-        print("mdtGetLimtVoltage fail ", result)
-    else:
-        print("mdtGetLimtVoltage ", limitVoltage)
-    return hdl
-def Read_X(hdl):
-    voltage = [0]
-    result = mdtGetXAxisVoltage(hdl,voltage)
-    if (result < 0):
-        print("X Voltage READ fail ", result)
-    else:
-        print("X Voltage READ ", voltage)
-def Set_X(hdl, vnext):
-    result = mdtSetXAxisVoltage(hdl, vnext)
-    if (result < 0):
-        print("X Voltage fail ", result)
-    else:
-        print("X Voltage SET ", vnext)
-def Read_X_min(hdl):
-    minVoltage = [0]
-    result = mdtGetXAxisMinVoltage(hdl, minVoltage)
-    if (result < 0):
-        print("X MinVoltage fail ", result)
-    else:
-        print("X MinVoltage ", minVoltage)
-def Read_X_max(hdl):
-    maxVoltage = [0]
-    result = mdtGetXAxisMaxVoltage(hdl, maxVoltage)
-    if (result < 0):
-        print("X MaxVoltage fail ", result)
-    else:
-        print("X MaxVoltage ", maxVoltage)
-def Get_X_step_res(hdl):
-    result = mdtGetVoltageAdjustmentResolution(hdl)
-    if (result < 0):
-        print("mdtGetVoltageAdjustmentResolution fail ", result)
-    else:
-        print("mdtGetVoltageAdjustmentResolution ", result)
-def Read_Y(hdl):
-    voltage = [0]
-    result = mdtGetYAxisVoltage(hdl,voltage)
-    if (result < 0):
-        print("Y Voltage READ fail ", result)
-    else:
-        print("Y Voltage READ ", voltage)
-def Set_Y(hdl,vnext):
-    result = mdtSetYAxisVoltage(hdl, vnext)
-    if (result < 0):
-        print("Y Voltage fail ", result)
-    else:
-        print("Y Voltage SET ", vnext)
-def Read_Y_min(hdl):
-    minVoltage = [0]
-    result = mdtGetYAxisMinVoltage(hdl, minVoltage)
-    if (result < 0):
-        print("Y MinVoltage fail ", result)
-    else:
-        print("Y MinVoltage ", minVoltage)
-def Read_Y_max(hdl):
-    maxVoltage = [0]
-    result = mdtGetYAxisMaxVoltage(hdl, maxVoltage)
-    if (result < 0):
-        print("Y MaxVoltage fail ", result)
-    else:
-        print("Y MaxVoltage ", maxVoltage)
-def Check_X_AXiS(hdl):
-    voltage = [0]
-    result = mdtGetXAxisVoltage(hdl, voltage)
-    if (result < 0):
-        print("mdtGetXAxisVoltage fail ", result)
-    else:
-        print("mdtGetXAxisVoltage ", voltage)
-
-    result = mdtSetXAxisVoltage(hdl, 40)
-    if (result < 0):
-        print("mdtSetXAxisVoltage fail ", result)
-    else:
-        print("mdtSetXAxisVoltage ", 40)
-
-    minVoltage = [0]
-    result = mdtGetXAxisMinVoltage(hdl, minVoltage)
-    if (result < 0):
-        print("mdtGetXAxisMinVoltage fail ", result)
-    else:
-        print("mdtGetXAxisMinVoltage ", minVoltage)
-
-    result = mdtSetXAxisMinVoltage(hdl, 50)
-    if (result < 0):
-        print("mdtSetXAxisMinVoltage fail ", result)
-    else:
-        print("mdtSetXAxisMinVoltage ", 50)
-    # reset back
-    mdtSetXAxisMinVoltage(hdl, minVoltage[0])
-    print("mdtSetXAxisMinVoltage ", minVoltage[0])
-
-    maxVoltage = [0]
-    result = mdtGetXAxisMaxVoltage(hdl, maxVoltage)
-    if (result < 0):
-        print("mdtGetXAxisMaxVoltage fail ", result)
-    else:
-        print("mdtGetXAxisMaxVoltage ", maxVoltage)
-
-    result = mdtSetXAxisMaxVoltage(hdl, 60)
-    if (result < 0):
-        print("mdtSetXAxisMaxVoltage fail ", result)
-    else:
-        print("mdtSetXAxisMaxVoltage ", 60)
-    # reset back
-    mdtSetXAxisMaxVoltage(hdl, maxVoltage[0])
-    print("mdtSetXAxisMaxVoltage ", maxVoltage[0])
-def Check_Y_AXiS(hdl):
-    voltage = [0]
-    result = mdtGetYAxisVoltage(hdl, voltage)
-    if (result < 0):
-        print("mdtGetYAxisVoltage fail ", result)
-    else:
-        print("mdtGetYAxisVoltage ", voltage)
-
-    result = mdtSetYAxisVoltage(hdl, 40)
-    if (result < 0):
-        print("mdtSetYAxisVoltage fail ", result)
-    else:
-        print("mdtSetYAxisVoltage ", 40)
-
-    minVoltage = [0]
-    result = mdtGetYAxisMinVoltage(hdl, minVoltage)
-    if (result < 0):
-        print("mdtGetYAxisMinVoltage fail ", result)
-    else:
-        print("mdtGetYAxisMinVoltage ", minVoltage)
-
-    result = mdtSetYAxisMinVoltage(hdl, 50)
-    if (result < 0):
-        print("mdtSetYAxisMinVoltage fail ", result)
-    else:
-        print("mdtSetYAxisMinVoltage ", 50)
-    # reset back
-    mdtSetYAxisMinVoltage(hdl, minVoltage[0])
-    print("mdtSetYAxisMinVoltage ", minVoltage[0])
-
-    maxVoltage = [0]
-    result = mdtGetYAxisMaxVoltage(hdl, maxVoltage)
-    if (result < 0):
-        print("mdtGetYAxisMaxVoltage fail ", result)
-    else:
-        print("mdtGetYAxisMaxVoltage ", maxVoltage)
-
-    result = mdtSetYAxisMaxVoltage(hdl, 40)
-    if (result < 0):
-        print("mdtSetYAxisMaxVoltage fail ", result)
-    else:
-        print("mdtSetYAxisMaxVoltage ", 40)
-    # reset back
-    mdtSetYAxisMaxVoltage(hdl, maxVoltage[0])
-    print("mdtSetYAxisMaxVoltage ", maxVoltage[0])
-def Check_Z_AXiS(hdl):
-    voltage = [0]
-    result = mdtGetZAxisVoltage(hdl, voltage)
-    if (result < 0):
-        print("mdtGetZAxisVoltage fail ", result)
-    else:
-        print("mdtGetZAxisVoltage ", voltage)
-
-    result = mdtSetZAxisVoltage(hdl, 40)
-    if (result < 0):
-        print("mdtSetZAxisVoltage fail ", result)
-    else:
-        print("mdtSetZAxisVoltage ", 40)
-
-    minVoltage = [0]
-    result = mdtGetZAxisMinVoltage(hdl, minVoltage)
-    if (result < 0):
-        print("mdtGetZAxisMinVoltage fail ", result)
-    else:
-        print("mdtGetZAxisMinVoltage ", minVoltage)
-
-    result = mdtSetZAxisMinVoltage(hdl, 50)
-    if (result < 0):
-        print("mdtSetZAxisMinVoltage fail ", result)
-    else:
-        print("mdtSetZAxisMinVoltage ", 50)
-    # reset back
-    mdtSetZAxisMinVoltage(hdl, minVoltage[0])
-    print("mdtSetZAxisMinVoltage ", minVoltage[0])
-
-    maxVoltage = [0]
-    result = mdtGetZAxisMaxVoltage(hdl, maxVoltage)
-    if (result < 0):
-        print("mdtGetZAxisMaxVoltage fail ", result)
-    else:
-        print("mdtGetZAxisMaxVoltage ", maxVoltage)
-
-    result = mdtSetZAxisMaxVoltage(hdl, 60)
-    if (result < 0):
-        print("mdtSetZAxisMaxVoltage fail ", result)
-    else:
-        print("mdtSetZAxisMaxVoltage ", 60)
-    # reset back
-    mdtSetZAxisMaxVoltage(hdl, maxVoltage[0])
-    print("mdtSetZAxisMaxVoltage ", maxVoltage[0])
-def MDT693BExample(serialNumber):
-    hdl = CommonFunc(serialNumber)
-    if (hdl < 0):
-        return
-    Check_X_AXiS(hdl)
-    Check_Y_AXiS(hdl)
-    Check_Z_AXiS(hdl)
-
-    result = mdtSetMasterScanEnable(hdl, 0)
-    if (result < 0):
-        print("mdtSetMasterScanEnable fail ", result)
-    else:
-        print("mdtSetMasterScanEnable ", 0)
-
-    result = mdtSetAllVoltage(hdl, 5)
-    if (result < 0):
-        print("mdtSetAllVoltage fail ", result)
-    else:
-        print("mdtSetAllVoltage ", 5)
-
-    xVoltage = 10
-    yVoltage = 20
-    zVoltage = 30
-    result = mdtSetXYZAxisVoltage(hdl, xVoltage, yVoltage, zVoltage)
-    if (result < 0):
-        print("mdtSetXYZAxisVoltage fail ", result)
-    else:
-        print("mdtSetXYZAxisVoltage ", xVoltage, yVoltage, zVoltage)
-
-    xyzVoltage = [0, 0, 0]
-    result = mdtGetXYZAxisVoltage(hdl, xyzVoltage)
-    if (result < 0):
-        print("mdtGetXYZAxisVoltage fail ", result)
-    else:
-        print("mdtGetXYZAxisVoltage ", xyzVoltage)
-
-    state = [0]
-    result = mdtGetMasterScanEnable(hdl, state)
-    if (result < 0):
-        print("mdtGetMasterScanEnable fail ", result)
-    else:
-        print("mdtGetMasterScanEnable ", state)
-
-    result = mdtSetMasterScanEnable(hdl, 1)
-    if (result < 0):
-        print("mdtSetMasterScanEnable fail ", result)
-    else:
-        print("mdtSetMasterScanEnable ", 1)
-
-    result = mdtSetMasterScanVoltage(hdl, 5)
-    if (result < 0):
-        print("mdtSetMasterScanVoltage fail ", result)
-    else:
-        print("mdtSetMasterScanVoltage ", 5)
-
-    masterVoltage = [0]
-    result = mdtGetMasterScanVoltage(hdl, masterVoltage)
-    if (result < 0):
-        print("mdtGetMasterScanVoltage fail ", result)
-    else:
-        print("mdtGetMasterScanVoltage ", masterVoltage)
-    result = mdtClose(hdl)
-    if (result == 0):
-        print("mdtClose ", serialNumber)
-    else:
-        print("mdtClose fail", result)
-    result = mdtIsOpen(serialNumber)
-    print("mdtIsOpen ", result)
-def check_hdl():
-    if (hdl < 0):
-     return
 # Function Definitions for the CCD and the Spectrometer
 def Max_int_PLmap(incoming_data):
     incoming_data = np.max(incoming_data)
@@ -604,28 +316,26 @@ def load_experiment():
 # ------------------------------------------------ Main Code -----------------------------------
 # The main code section
 
-# First we check to see if MDT693B is connected. If connected, we open lightfield and set the settings
+# First we check to see if NewportESP302 is connected. If connected, we open lightfield and set the settings
 # ----------------------------------------------------- START
-try:
-    devs = mdtListDevices()
-    print(devs)
-    if (len(devs) <= 0):
-        print('There is no devices connected')
-        exit()
 
-    for mdt in devs:
-        if (mdt[1] == "MDT693B"):
-            print('MDT693B Device is recognized')
-            print('Establishing Connection Now...')
-            hdl = CommonFunc(mdt[0])    #It appears we would like to pass mdt[0] instead of the serial number
-            check_hdl()
-        elif (mdt[1] == "MDT694B"):
-            print('we dont recognize this device')
-except Exception as ex:
-    print("Warning:", ex)
-    print("*** End ***")
-    input()
-print("success in breaking")
+device_ip = '192.168.254.254'
+device_port = 5001
+esp = ESP(device_ip, device_port)
+axis_x = esp.axis(1)
+axis_y = esp.axis(2)
+
+axis_x.travel_limits()
+axis_y.travel_limits()
+
+axis_x.backlash()
+axis_y.backlash()
+
+axis_x.home_search()
+axis_y.home_search()
+
+
+
 # ----------------------------------------------------- END
 
 # Opening lightfield and initialization of settings
@@ -689,9 +399,13 @@ baseFilename = "PLmap_demo_"
 # initialize the pl_plot
 # ----------------------------------------------------- START
 
-print("Moving in voltage steps of", v_res, "volt with interval times of", t_exp, "seconds")
-Set_X(hdl, 0)
-Set_Y(hdl, 0)
+print("Moving in steps of", v_res, " with interval times of ", t_exp, " seconds ", "and increment size of ", increment)
+axis_x.on()
+axis_y.on()
+axis_x.move_to(0)
+axis_y.move_to(0)
+axis_x.on()
+axis_y.on()
 print("stage initilized to zero position, X and Y are set to zero")
 time.sleep(3)
 # ----------------------------------------------------- END
@@ -711,17 +425,17 @@ v_y=0
 PL_plot = np.zeros((int(x_step_range),int(y_step_range)))
 for v_x in np.arange(0, v_range, v_res):
     x= int(v_x/v_res)
-    Set_X(hdl, v_x)
+    axis_x.move_to(v_x * increment)
     time.sleep(0.3)
-    Read_X(hdl)
-    Read_Y(hdl)
+    # Read_X(hdl)
+    # Read_Y(hdl)
     if v_y == 0:
         for v_y in np.arange(0, v_range, v_res):
             y = int(v_y/v_res)
-            Set_Y(hdl, v_y)
+            axis_x.move_to(v_y * increment)
             time.sleep(0.3)
-            Read_X(hdl)
-            Read_Y(hdl)
+            # Read_X(hdl)
+            # Read_Y(hdl)
             print("we are in position ", x, y)
             AcquireMoveAndLock(baseFilename)
             time.sleep(0.8)
@@ -729,16 +443,14 @@ for v_x in np.arange(0, v_range, v_res):
     elif v_y == v_range - v_res:
         for v_y in reversed(np.arange(0, v_range, v_res)):
             y = int(v_y/v_res)
-            Set_Y(hdl, v_y)
+            axis_y.move_to(v_y * increment)
             time.sleep(0.3)
-            Read_X(hdl)
-            Read_Y(hdl)
+            # Read_X(hdl)
+            # Read_Y(hdl)
             print("we are in position ", x, y)
             AcquireMoveAndLock(baseFilename)
             time.sleep(t_exp)
             time.sleep(0.8)
-
-
     else:
         print("an error has occured in movement of stage")
         print("last scanned position was pixel", x,y)
