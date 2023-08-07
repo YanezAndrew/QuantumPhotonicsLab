@@ -33,7 +33,7 @@ def key_press(key):
         return 'B'
 
 if __name__ == "__main__":
-    #pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
     current_dir = os.getcwd()
     # Get the current date
     current_date = datetime.now().strftime('%Y-%m-%d')
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     start_time = None
 
     #,cv2.CAP_DSHOW
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     cv2.namedWindow('Edges')
     cv2.setMouseCallback('Edges', on_mouse)
 
@@ -86,6 +86,7 @@ if __name__ == "__main__":
                 crop_img = False
         count += 1 
         ret, frame = cap.read()
+        print(ret)
         edges = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         if not paused:
             if crop_img == True:
