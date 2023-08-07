@@ -49,14 +49,23 @@ if __name__ == '__main__':
     esp = ESP(device_ip, device_port)
     
     #data_to_send = '1PR1\r'5
-    axis1 = esp.axis(1)
-    axis2 = esp.axis(2)
+    axis_x = esp.axis(1)
+    axis_y= esp.axis(2)
 
     # axis1.on()
     # axis2.on()
-    
-    axis1.move_to(0)
-    axis2.move_to(0)
+    axis_x.travel_limits()
+    axis_y.travel_limits()
+
+    axis_x.backlash()
+    axis_y.backlash()
+
+    axis_x.home_search()
+    axis_y.home_search()
+
+
+    # axis_x.move_to(0)
+    # axis_y.move_to(0)
     
     
     # axis1.move_by(1, True)
