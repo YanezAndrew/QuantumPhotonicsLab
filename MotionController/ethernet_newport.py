@@ -29,7 +29,6 @@ import socket
 from time import sleep
 import signal
 import threading
-import traceback
 
 #import logging
 #from  matplotlib.cbook import Stack
@@ -126,8 +125,8 @@ class ESP(object):
     :param check_error: if True, query the controller for any error, both before writing and before reading.
     :type check_error: bool
     :return: the reply string
-    :rtype: string
-    """    
+    :rtype: strin
+    """   
     with self.lock:
       if check_error:
         print('Before')
@@ -194,7 +193,6 @@ class Axis(object):
   # def __del__(self):
   #   self.off()
 
-
   def write(self, string, axis=None):
     """ Send a command string to the axis.
      
@@ -205,10 +203,14 @@ class Axis(object):
     """
     if axis is None:
       axis = self.axis
+
+
     # optional argument allows none-axis-specific commands
     # (most of which should be in the controller class, but a few are useful here.)
     self.esp.write(string, axis=axis)
-  
+    code = self.esp.query("TB", axis)
+    if code[0] != '0':
+      print("ERROR")
   def query(self, string, check_error=False):
     """write a command and read the reply.
     

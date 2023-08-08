@@ -54,19 +54,14 @@ if __name__ == '__main__':
 
     # axis1.on()
     # axis2.on()
-    axis_x.travel_limits()
-    axis_y.travel_limits()
-
-    axis_x.backlash()
-    axis_y.backlash()
-
-    axis_x.home_search()
-    axis_y.home_search()
 
 
-    # axis_x.move_to(0)
-    # axis_y.move_to(0)
-    
+    # print("Resolution")
+    # axis_x.backlash
+    # axis_y.backlash
+    # print("Home")
+    axis_y.move_to(0)
+    axis_x.move_to(0)
     
     # axis1.move_by(1, True)
     # axis1.move_by(1.5, True)

@@ -160,16 +160,6 @@ if __name__ == '__main__':
     axis_x = esp.axis(1)
     axis_y = esp.axis(2)
 
-    axis_x.travel_limits()
-    axis_y.travel_limits()
-
-    axis_x.backlash()
-    axis_y.backlash()
-
-    axis_x.home_search()
-    axis_y.home_search()
-
-
     axis_x.move_to(0)
     axis_y.move_to(0)
     
