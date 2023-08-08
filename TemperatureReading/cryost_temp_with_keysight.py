@@ -148,23 +148,23 @@ if __name__ == "__main__":
     start_time = None
 
 
-    #intialize_device()
-    # keysight_usb_id = 'USB0::0x0957::0x8C18::MY51145486::INSTR'
-    # rm = pv.ResourceManager()
-    # print(rm)
-    # print(rm.list_resources())
-    # try:
-    #     keysight = rm.open_resource(keysight_usb_id) # open Keysight according to the usb id of keysight that comes along with it.
-    # except:
-    #     print("Failed to connect to Keysight. Please check your connection")
-    #     exit(1)
-    # '''
-    # code for testing if keysight is connected successfully
-    # '''
-    # print(keysight)
-    # print(keysight.query('*IDN?')) # return ID information
-    # keysight.write('*RST') # to reset all setup on the keysight
-    # time.sleep(0.1)
+    intialize_device()
+    keysight_usb_id = 'USB0::0x0957::0x8C18::MY51145486::INSTR'
+    rm = pv.ResourceManager()
+    print(rm)
+    print(rm.list_resources())
+    try:
+        keysight = rm.open_resource(keysight_usb_id) # open Keysight according to the usb id of keysight that comes along with it.
+    except:
+        print("Failed to connect to Keysight. Please check your connection")
+        exit(1)
+    '''
+    code for testing if keysight is connected successfully
+    '''
+    print(keysight)
+    print(keysight.query('*IDN?')) # return ID information
+    keysight.write('*RST') # to reset all setup on the keysight
+    time.sleep(0.1)
 
     start = 0
     stop = 1

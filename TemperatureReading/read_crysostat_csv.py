@@ -59,7 +59,9 @@ if __name__ == "__main__":
         file_path = os.path.join(current_dir, file_name)
         file_exists = os.path.exists(file_path)
         cnt += 1
-    file_name = f"data_{current_date} ({cnt - 2}).csv"
+    #f"data_{current_date} ({cnt - 2}).csv"
+    file_name = "data_2023-08-07 (1).csv"
+    cnt = 1
     if (cnt == 0):
         print("No File Created For Today or Not in Temperature Reading Directory")
     else:

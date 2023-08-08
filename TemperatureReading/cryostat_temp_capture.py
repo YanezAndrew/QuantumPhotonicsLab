@@ -7,10 +7,12 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import pyvisa as pv
 from matplotlib import style
 import time
 from datetime import datetime
-
+import pandas as pd
+from scipy.optimize import curve_fit
 
 def on_mouse(event, x, y, flags, param):
     global click_start, click_end, start_mouse_tracking
@@ -20,7 +22,6 @@ def on_mouse(event, x, y, flags, param):
     elif start_mouse_tracking and event == cv2.EVENT_LBUTTONUP:
         click_end = (x, y)
         print("Mouse click end:", click_end)
-
 def key_press(key):
     # Wait for Esc key to stop
     if key == 27:
@@ -31,15 +32,30 @@ def key_press(key):
 
     if key == ord('b'):
         return 'B'
+    
+def create_csv_file(file_path):
+    filename = 'data.csv'  # Specify the name of the CSV file
+    
+    # Check if the file already exists
+    if os.path.exists(filename):
+        print(f"File '{filename}' already exists.")
+        return
+    
+    # Open the file in write mode
+    with open(file_path, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+
+def func(x, m, c):
+    return m * x + c
 
 if __name__ == "__main__":
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
     current_dir = os.getcwd()
     # Get the current date
     current_date = datetime.now().strftime('%Y-%m-%d')
-
+    cnt = 0
     # File name with the current date
-    file_name = f"data_{current_date}.csv"
+    file_name = f"data_{current_date} ({cnt}).csv"
 
     # Path to the file in the current directory
     file_path = os.path.join(current_dir, file_name)
@@ -49,13 +65,15 @@ if __name__ == "__main__":
     
     
     # If the file already exists, add a number to the file name
-    cnt = 1
+
     while file_exists:
         file_name = f"data_{current_date} ({cnt}).csv"
         file_path = os.path.join(current_dir, file_name)
         file_exists = os.path.exists(file_path)
         cnt += 1
-
+    # Initialize CSV File
+    create_csv_file(file_path)
+    reading_count = 0
     count = 0
     data = []
     paused = False
@@ -63,12 +81,18 @@ if __name__ == "__main__":
     click_end = None
     start_mouse_tracking = False
     crop_img = False
-    duration = 5
+    duration = 30
     start = True
     start_time = None
 
+
+    start = 0
+    stop = 1
+    points = 5
+    save_file = False
+
     #,cv2.CAP_DSHOW
-    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
     cv2.namedWindow('Edges')
     cv2.setMouseCallback('Edges', on_mouse)
 
@@ -86,27 +110,36 @@ if __name__ == "__main__":
                 crop_img = False
         count += 1 
         ret, frame = cap.read()
-        print(ret)
         edges = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         if not paused:
             if crop_img == True:
-                if start_time is None:  # Check if start_time is not set
-                    start_time = time.time()
                 crop = edges[start_point[1]:end_point[1], start_point[0]:end_point[0]]
                 cv2.imshow('Edges', crop)
-                if time.time() - start_time >= duration:
+                if start_time == None:
+                    start_time = time.time()
+                if time.time() - start_time >= duration or reading_count == 0:
+                    print(reading_count)
+                    reading_count +=1
+                    ###########
+                    # Just For Testing
+                    resistance = 1
+                    ###########
+
+
                     # Extract the text from the cropped image
-                    temp = (pytesseract.image_to_string(crop, lang='eng', config='--psm 6'))
-                    temp = temp.replace('\n', '')
+                    temp = (pytesseract.image_to_string(crop, lang='eng', config='--psm 6')).replace('\n', '')
+
                     # Append the data to the list
-                    data.append([time.ctime(start_time), temp])
-                    print(temp)
+                    x = [0.0, 0.25, 0.5, 0.75, 1.0]
+                    y = [2.4119e-09, 4.482385e-06, 8.970615000000001e-06, 1.3449680000000001e-05, 1.794105e-05]
+                    data.append([time.ctime(start_time), temp, x, y, resistance])
+                    df = pd.DataFrame(data, columns=['Time', 'Temperature', 'Voltage','Amps', 'Resistance'])
+                    print(df.dtypes)
+                    print(temp, resistance)
                     print('Current Time:', time.ctime(time.time()))
                     start_time = None
-                    with open(os.path.join(current_dir, file_path), 'w', newline='') as csvfile:
-                        writer = csv.writer(csvfile)
-                        #writer.writerow(['Timestamp', 'Temp'])
-                        writer.writerows(data)
+                    print(df['Temperature'])
+                    df.to_csv(file_path, index=False)
             else:
                 cv2.imshow('Edges', edges)
         if paused and click_start is not None and click_end is not None:
