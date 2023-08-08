@@ -166,7 +166,7 @@ if __name__ == "__main__":
     keysight.write('*RST') # to reset all setup on the keysight
     time.sleep(0.1)
 
-    start = 0
+    start = -8
     stop = 1
     points = 5
     save_file = False
@@ -196,18 +196,14 @@ if __name__ == "__main__":
         edges = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         if not paused:
             if crop_img == True:
-                slope = (end_point[1] - start_point[1]) / (end_point[0] - start_point[0])
+                slope_crop = (end_point[1] - start_point[1]) / (end_point[0] - start_point[0])
                 x_1 = start_point[0]
                 x_2 = end_point[0]
                 y_1 = start_point[1]
                 y_2 = end_point[1]
-                if (slope < 0):
+                if (slope_crop < 0):
                     y_1 = end_point[1]
                     y_2 = start_point[1]
-
-                print(start_point[1])
-                print(end_point[1])
-                print(slope)
                 crop = edges[y_1:y_2, x_1:x_2]
                 cv2.imshow('Edges', crop)
                 if start_time == None:
@@ -218,7 +214,7 @@ if __name__ == "__main__":
                     ###########
                     M = np.zeros((10, points))
                     for i in range(10):
-                        M[i] = single_IV_sweep(keysight, 1, start, stop, points, current_compliance=2e-4)
+                        M[i] = single_IV_sweep(keysight, 1, start, stop, points, current_compliance=5e-2)
                     print(type(np.linspace(start, stop, points)))
                     x = list(np.linspace(start, stop, points))
                     y = list(np.mean(M, axis=0))
