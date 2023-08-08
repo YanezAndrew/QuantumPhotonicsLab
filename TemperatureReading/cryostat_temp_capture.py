@@ -101,6 +101,9 @@ if __name__ == "__main__":
 
     #,cv2.CAP_DSHOW
     cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
+    cap.set(3, 1280) # set the resolution
+    cap.set(4, 720)
+    cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
     cv2.namedWindow('Edges')
     cv2.setMouseCallback('Edges', on_mouse)
 
@@ -130,9 +133,9 @@ if __name__ == "__main__":
                     y_1 = end_point[1]
                     y_2 = start_point[1]
 
-                print(start_point[1])
-                print(end_point[1])
-                print(slope)
+                # print(start_point[1])
+                # print(end_point[1])
+                # print(slope)
                 crop = edges[y_1:y_2, x_1:x_2]
                 cv2.imshow('Edges', crop)
                 if start_time == None:
@@ -150,7 +153,7 @@ if __name__ == "__main__":
                     temp = (pytesseract.image_to_string(crop, lang='eng', config='--psm 6')).replace('\n', '')
                     if not is_float(temp):
                         image_filename = os.path.join("error/", f"ERROR_{current_date}_ ({error_cnt}).jpg")
-                        cv2.imwrite(image_filename, edges)
+                        cv2.imwrite(image_filename, crop)
                         error_cnt += 1
                         
                     # Append the data to the list
