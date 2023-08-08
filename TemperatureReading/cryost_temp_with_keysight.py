@@ -193,7 +193,19 @@ if __name__ == "__main__":
         edges = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         if not paused:
             if crop_img == True:
-                crop = edges[start_point[1]:end_point[1], start_point[0]:end_point[0]]
+                slope = (end_point[1] - start_point[1]) / (end_point[0] - start_point[0])
+                x_1 = start_point[0]
+                x_2 = end_point[0]
+                y_1 = start_point[1]
+                y_2 = end_point[1]
+                if (slope < 0):
+                    y_1 = end_point[1]
+                    y_2 = start_point[1]
+
+                print(start_point[1])
+                print(end_point[1])
+                print(slope)
+                crop = edges[y_1:y_2, x_1:x_2]
                 cv2.imshow('Edges', crop)
                 if start_time == None:
                     start_time = time.time()
@@ -232,8 +244,12 @@ if __name__ == "__main__":
                 cv2.imshow('Edges', edges)
         if paused and click_start is not None and click_end is not None:
             image = edges.copy()
-            start_point = click_start
-            end_point = click_end
+            if (click_start[0] + click_start[1] > click_end[0] + click_end[1]):
+                start_point = click_end
+                end_point = click_start
+            else:
+                start_point = click_start
+                end_point = click_end
             color = (255, 0, 0)
             thickness = 2
             image = cv2.rectangle(image, click_start, click_end, color, thickness)

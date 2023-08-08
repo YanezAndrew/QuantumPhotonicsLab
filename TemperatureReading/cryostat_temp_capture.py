@@ -48,6 +48,14 @@ def create_csv_file(file_path):
 def func(x, m, c):
     return m * x + c
 
+def is_float(value):
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
+    
+
 if __name__ == "__main__":
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
     current_dir = os.getcwd()
@@ -81,10 +89,10 @@ if __name__ == "__main__":
     click_end = None
     start_mouse_tracking = False
     crop_img = False
-    duration = 30
+    duration = 5
     start = True
     start_time = None
-
+    error_cnt = 0
 
     start = 0
     stop = 1
@@ -113,7 +121,19 @@ if __name__ == "__main__":
         edges = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         if not paused:
             if crop_img == True:
-                crop = edges[start_point[1]:end_point[1], start_point[0]:end_point[0]]
+                slope = (end_point[1] - start_point[1]) / (end_point[0] - start_point[0])
+                x_1 = start_point[0]
+                x_2 = end_point[0]
+                y_1 = start_point[1]
+                y_2 = end_point[1]
+                if (slope < 0):
+                    y_1 = end_point[1]
+                    y_2 = start_point[1]
+
+                print(start_point[1])
+                print(end_point[1])
+                print(slope)
+                crop = edges[y_1:y_2, x_1:x_2]
                 cv2.imshow('Edges', crop)
                 if start_time == None:
                     start_time = time.time()
@@ -128,7 +148,11 @@ if __name__ == "__main__":
 
                     # Extract the text from the cropped image
                     temp = (pytesseract.image_to_string(crop, lang='eng', config='--psm 6')).replace('\n', '')
-
+                    if not is_float(temp):
+                        image_filename = os.path.join("error/", f"ERROR_{current_date}_ ({error_cnt}).jpg")
+                        cv2.imwrite(image_filename, edges)
+                        error_cnt += 1
+                        
                     # Append the data to the list
                     x = [0.0, 0.25, 0.5, 0.75, 1.0]
                     y = [2.4119e-09, 4.482385e-06, 8.970615000000001e-06, 1.3449680000000001e-05, 1.794105e-05]
@@ -144,8 +168,12 @@ if __name__ == "__main__":
                 cv2.imshow('Edges', edges)
         if paused and click_start is not None and click_end is not None:
             image = edges.copy()
-            start_point = click_start
-            end_point = click_end
+            if (click_start[0] + click_start[1] > click_end[0] + click_end[1]):
+                start_point = click_end
+                end_point = click_start
+            else:
+                start_point = click_start
+                end_point = click_end
             color = (255, 0, 0)
             thickness = 2
             image = cv2.rectangle(image, click_start, click_end, color, thickness)
