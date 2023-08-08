@@ -1,0 +1,1 @@
+This file is for all the errors from the pytesseract
