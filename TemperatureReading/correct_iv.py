@@ -87,7 +87,7 @@ time.sleep(0.1)
 
 
 # initializing the parameters
-start = 0
+start = -8
 stop = 1
 points = 5
 save_file = False
