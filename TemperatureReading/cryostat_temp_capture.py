@@ -177,9 +177,9 @@ if __name__ == "__main__":
             else:
                 start_point = click_start
                 end_point = click_end
-            color = (255, 0, 0)
+            color = (0, 0, 255)
             thickness = 2
-            image = cv2.rectangle(image, click_start, click_end, color, thickness)
+            image = cv2.rectangle(cv2.cvtColor(image, cv2.COLOR_BGR2RGB), click_start, click_end, color, thickness)
             crop_img = True
             cv2.imshow('Edges', image)
         if click_start is not None and click_end is not None:
