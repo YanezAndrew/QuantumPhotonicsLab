@@ -91,9 +91,9 @@ time.sleep(0.1)
 
 
 # initializing the parameters
-start = -1
-stop = 1
-points = 5
+start = -8
+stop = 0
+points = 10
 save_file = False
 
 # Return evenly spaced numbers over a specified interval.

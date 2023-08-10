@@ -78,6 +78,7 @@ def single_IV_sweep(keysight=None, channel=1, start=0, stop=10, points=10, aper=
     keysight.write(":INIT (@" + str(channel) + ")")
     keysight.write(":FETC:ARR:CURR? (@" + str(channel) + ")")
     data = keysight.read()
+    #print(data)
     keysight.write(":OUTP" + str(channel) + " OFF")
 
 
@@ -86,16 +87,16 @@ def single_IV_sweep(keysight=None, channel=1, start=0, stop=10, points=10, aper=
     current_list = np.zeros(points, dtype=np.float64)
     for i in range(points):
         current_list[i] = float(l[i])
-
+    keysight.clear()
     return current_list
 
 def intialize_device():
-    keysight_usb_id = 'USB0::0x0957::0x8C18::MY51145486::INSTR'
     rm = pv.ResourceManager()
-    print(rm)
-    print(rm.list_resources())
+    #print(rm.list_resources())
+    #print(rm)
+    keysight_USB_ID= rm.list_resources()[0]
     try:
-        keysight = rm.open_resource(keysight_usb_id) # open Keysight according to the usb id of keysight that comes along with it.
+        keysight = rm.open_resource(keysight_USB_ID) # open Keysight according to the usb id of keysight that comes along with it.
     except:
         print("Failed to connect to Keysight. Please check your connection")
         exit(1)
@@ -103,15 +104,18 @@ def intialize_device():
     code for testing if keysight is connected successfully
     '''
     print(keysight)
-    print(keysight.query('*IDN?')) # return ID information
-    keysight.write('*RST') # to reset all setup on the keysight
-    time.sleep(0.1)   
+    #print(keysight.query('*IDN?')) # return ID information THIS BREAKS PROGRAM
+    keysight.clear()
+    #keysight.write('*RST') # to reset all setup on the keysight
+    return keysight
 
 def func(x, m, c):
     return m * x + c
 
 if __name__ == "__main__":
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+    keysight = intialize_device()
     current_dir = os.getcwd()
     # Get the current date
     current_date = datetime.now().strftime('%Y-%m-%d')
@@ -143,34 +147,15 @@ if __name__ == "__main__":
     click_end = None
     start_mouse_tracking = False
     crop_img = False
-    duration = 10
+    duration = 5
     start = True
     start_time = None
 
 
-    intialize_device()
-    keysight_usb_id = 'USB0::0x0957::0x8C18::MY51145486::INSTR'
-    rm = pv.ResourceManager()
-    print(rm)
-    print(rm.list_resources())
-    try:
-        keysight = rm.open_resource(keysight_usb_id) # open Keysight according to the usb id of keysight that comes along with it.
-    except:
-        print("Failed to connect to Keysight. Please check your connection")
-        exit(1)
-    '''
-    code for testing if keysight is connected successfully
-    '''
-    print(keysight)
-    print(keysight.query('*IDN?')) # return ID information
-    keysight.write('*RST') # to reset all setup on the keysight
-    time.sleep(0.1)
-
     start = -8
-    stop = 1
-    points = 5
+    stop = 0
+    points = 10
     save_file = False
-
     #,cv2.CAP_DSHOW
     cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
     cap.set(3, 1280) # set the resolution
@@ -178,7 +163,7 @@ if __name__ == "__main__":
     cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
     cv2.namedWindow('Edges')
     cv2.setMouseCallback('Edges', on_mouse)
-
+    fig, ax = plt.subplots()
     while True:
         key = cv2.waitKey(1)
         button = key_press(key)
@@ -214,8 +199,9 @@ if __name__ == "__main__":
                     ###########
                     M = np.zeros((10, points))
                     for i in range(10):
-                        M[i] = single_IV_sweep(keysight, 1, start, stop, points, current_compliance=5e-2)
-                    print(type(np.linspace(start, stop, points)))
+                        M[i] = single_IV_sweep(keysight, 1, start, stop, points, 2e-4)
+                    print(M)
+                    #print(type(np.linspace(start, stop, points)))
                     x = list(np.linspace(start, stop, points))
                     y = list(np.mean(M, axis=0))
                        
@@ -223,17 +209,19 @@ if __name__ == "__main__":
                     m_fit, c_fit = params
                     slope = m_fit
                     # resistance is Volts / Amps
-                    resistance = stop / slope
+                    resistance = 1 / slope
                     ###########
 
 
                     # Extract the text from the cropped image
                     temp = (pytesseract.image_to_string(crop, lang='eng', config='--psm 6')).replace('\n', '')
-
+                    plt.scatter(x, y, s=6)
+                    plt.pause(0.01)  # Pause for 0.01 seconds to show each step
+                    #plt.title("IV")
                     # Append the data to the list
                     data.append([time.ctime(start_time), temp, x, y, resistance])
                     df = pd.DataFrame(data, columns=['Time', 'Temperature', 'Voltage','Amps', 'Resistance'])
-                    print(df.dtypes)
+                    #print(df.dtypes)
                     print(temp, resistance)
                     print('Current Time:', time.ctime(time.time()))
                     start_time = None
@@ -257,9 +245,10 @@ if __name__ == "__main__":
         if click_start is not None and click_end is not None:
             click_start = None
             click_end = None
-            
+    
+    plt.show()
 
     cv2.destroyAllWindows()
     cap.release()
-    
+    keysight.close()
     print("Total frames processed:", count)
