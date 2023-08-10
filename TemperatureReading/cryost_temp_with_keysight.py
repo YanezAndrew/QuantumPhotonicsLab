@@ -45,7 +45,7 @@ def create_csv_file(file_path):
     with open(file_path, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
 
-def single_IV_sweep(keysight=None, channel=1, start=0, stop=10, points=10, aper=1E-4, current_compliance=0.1):
+def single_IV_sweep(keysight=None, channel=1, start=0, stop=10, points=10, aper=1E-4, current_compliance=10E-4):
     '''
         Remember to connect, initialze keysight and import numpy before executing this function!
         Runs an IV measurement on Channel 1.
@@ -53,8 +53,8 @@ def single_IV_sweep(keysight=None, channel=1, start=0, stop=10, points=10, aper=
     '''
 
     # Source
-    keysight.write("*RST")
-    #keysight.write(":SOUR:FUNC:MODE VOLT")
+    #keysight.write("*RST")
+    keysight.write(":SOUR:FUNC:MODE VOLT")
     keysight.write(":SOUR:VOLT:MODE SWE")
     #keysight.write(":SOUR:VOLT:RANG:AUTO:LLIM 0.002")
     keysight.write(":SOUR:VOLT:STAR " + str(start))
@@ -95,6 +95,7 @@ def intialize_device():
     #print(rm.list_resources())
     #print(rm)
     keysight_USB_ID= rm.list_resources()[0]
+    #keysight_USB_ID = "USB0::2391::35864::MY51145486::0::INSTR"
     try:
         keysight = rm.open_resource(keysight_USB_ID) # open Keysight according to the usb id of keysight that comes along with it.
     except:
@@ -111,6 +112,13 @@ def intialize_device():
 
 def func(x, m, c):
     return m * x + c
+
+def is_float(value):
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
 
 if __name__ == "__main__":
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
@@ -150,12 +158,13 @@ if __name__ == "__main__":
     duration = 5
     start = True
     start_time = None
+    error_cnt = 0
 
 
     start = -8
     stop = 0
     points = 10
-    save_file = False
+
     #,cv2.CAP_DSHOW
     cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
     cap.set(3, 1280) # set the resolution
@@ -215,9 +224,13 @@ if __name__ == "__main__":
 
                     # Extract the text from the cropped image
                     temp = (pytesseract.image_to_string(crop, lang='eng', config='--psm 6')).replace('\n', '')
+                    if not is_float(temp):
+                        image_filename = os.path.join("error/", f"ERROR_{current_date}_ ({error_cnt}).jpg")
+                        cv2.imwrite(image_filename, crop)
+                        error_cnt += 1
+                    
                     plt.scatter(x, y, s=6)
                     plt.pause(0.01)  # Pause for 0.01 seconds to show each step
-                    #plt.title("IV")
                     # Append the data to the list
                     data.append([time.ctime(start_time), temp, x, y, resistance])
                     df = pd.DataFrame(data, columns=['Time', 'Temperature', 'Voltage','Amps', 'Resistance'])
@@ -237,18 +250,20 @@ if __name__ == "__main__":
             else:
                 start_point = click_start
                 end_point = click_end
-            color = (255, 0, 0)
+            color = (0, 0, 255)
             thickness = 2
-            image = cv2.rectangle(image, click_start, click_end, color, thickness)
+            image = cv2.rectangle(cv2.cvtColor(image, cv2.COLOR_BGR2RGB), click_start, click_end, color, thickness)
             crop_img = True
             cv2.imshow('Edges', image)
         if click_start is not None and click_end is not None:
             click_start = None
             click_end = None
-    
-    plt.show()
 
-    cv2.destroyAllWindows()
-    cap.release()
     keysight.close()
+    plt.title("I-V")
+    plt.xlabel('Voltage (V)')
+    plt.ylabel('Current (A)')
+    plt.show()
+    cap.release()
+    cv2.destroyAllWindows()
     print("Total frames processed:", count)
