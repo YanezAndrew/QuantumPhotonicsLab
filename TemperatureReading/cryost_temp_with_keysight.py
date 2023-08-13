@@ -155,15 +155,15 @@ if __name__ == "__main__":
     click_end = None
     start_mouse_tracking = False
     crop_img = False
-    duration = 5
+    duration = 60
     start = True
     start_time = None
     error_cnt = 0
 
 
-    start = -8
-    stop = 0
-    points = 10
+    start = 2
+    stop = -8
+    points = 125
 
     #,cv2.CAP_DSHOW
     cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
@@ -208,7 +208,7 @@ if __name__ == "__main__":
                     ###########
                     M = np.zeros((10, points))
                     for i in range(10):
-                        M[i] = single_IV_sweep(keysight, 1, start, stop, points, 2e-4)
+                        M[i] = single_IV_sweep(keysight, 1, start, stop, points, 5e-3)
                     print(M)
                     #print(type(np.linspace(start, stop, points)))
                     x = list(np.linspace(start, stop, points))
