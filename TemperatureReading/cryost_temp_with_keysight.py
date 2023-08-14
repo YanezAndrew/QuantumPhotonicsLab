@@ -161,8 +161,8 @@ if __name__ == "__main__":
     error_cnt = 0
 
 
-    start = 2
-    stop = -8
+    start = 0
+    stop = 2
     points = 125
 
     #,cv2.CAP_DSHOW

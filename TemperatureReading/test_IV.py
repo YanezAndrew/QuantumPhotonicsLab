@@ -78,15 +78,15 @@ time.sleep(0.1)
 
 
 # initializing the parameters
-start = 0
-stop = 1
-points = 75
+start = 1
+stop = -2
+points = 300
 save_file = False
 
 volt_list = np.linspace(start, stop, points)
 M = np.zeros((10, points))
 for i in range(10):
-    M[i] = single_IV_sweep(keysight, 1, start, stop, points, aper=0.005, current_compliance=2e-4)
+    M[i] = single_IV_sweep(keysight, 1, start, stop, points, aper=0.005, current_compliance=5e-2)
 
 
 # data = single_IV_sweep(keysight,1, start,stop,points, nplc=0.2, current_compliance=10e-9)
