@@ -110,6 +110,17 @@ def intialize_device():
     #keysight.write('*RST') # to reset all setup on the keysight
     return keysight
 
+def sweeper(volt_start, volt_stop, steps, channel):
+    data = []
+    keysight.write(":OUTP" + str(channel) + " ON")
+    for i in np.linespace(volt_start, volt_stop, steps):
+        keysight.write(":SOUR:VOLT" + str(i))
+        keysight.write(":INIT (@" + str(channel) + ")")
+        keysight.write(":FETC:ARR:CURR? (@" + str(channel) + ")")
+        data.append(keysight.read())
+    keysight.write(":OUTP" + str(channel) + " OFF")
+    return data
+
 def func(x, m, c):
     return m * x + c
 
