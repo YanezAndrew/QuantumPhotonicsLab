@@ -61,26 +61,70 @@ def single_IV_sweep(keysight=None, channel=1, start=0, stop=10, points=10, aper=
 
 
 
+####
 
+# keysight_usb_id = 'USB0::0x0957::0x8C18::MY51145486::INSTR'
+
+# rm = pv.ResourceManager()
+# print(rm)
+# print(rm.list_resources())
+# try:
+#     keysight = rm.open_resource(keysight_usb_id) # open Keysight according to the usb id of keysight that comes along with it.
+# except:
+#     print("Failed to connect to Keysight. Please check your connection")
+#     exit(1)
+
+
+# '''
+#     code for testing if keysight is connected successfully
+# '''
+# print(keysight)
+# print(keysight.query('*IDN?')) # return ID information
+# keysight.write('*RST') # to reset all setup on the keysight
+# time.sleep(0.1)
+# keysight.write("*RST")
+# keysight.write("*CLS")
+# keysight.write(":SOUR:FUNC:MODE VOLT")
+# keysight.write(":SENSE:FUNC ""CURR""")
+# keysight.write(":SENSE:CURR:PROT " + str(current_compliance))
+
+
+def sweeper(volt_start, volt_stop, steps, channel):
+    data = []
+    keysight.write(":OUTP" + str(channel) + " ON")
+    for i in np.linespace(volt_start, volt_stop, steps):
+        keysight.write(":SOUR:VOLT" + str(i))
+        keysight.write(":INIT (@" + str(channel) + ")")
+        keysight.write(":FETC:ARR:CURR? (@" + str(channel) + ")")
+        data.append(keysight.read())
+    keysight.write(":OUTP" + str(channel) + " OFF")
+    return data
+    
 
 
 keysight_usb_id = 'USB0::0x0957::0x8C18::MY51145486::INSTR'
+
 rm = pv.ResourceManager()
-#print(rm.list_resources())
-#print(rm)
-keysight_USB_ID= rm.list_resources()[0]
-#keysight_USB_ID = "USB0::2391::35864::MY51145486::0::INSTR"
+print(rm)
+print(rm.list_resources())
 try:
-    keysight = rm.open_resource(keysight_USB_ID) # open Keysight according to the usb id of keysight that comes along with it.
+    keysight = rm.open_resource(keysight_usb_id) # open Keysight according to the usb id of keysight that comes along with it.
 except:
     print("Failed to connect to Keysight. Please check your connection")
     exit(1)
 
+
+'''
+    code for testing if keysight is connected successfully
+'''
 print(keysight)
 print(keysight.query('*IDN?')) # return ID information
 keysight.write('*RST') # to reset all setup on the keysight
 time.sleep(0.1)
 
+
+
+######
 
 
 # initializing the parameters
@@ -89,43 +133,43 @@ stop = 1
 points = 5
 save_file = False
 
-M = np.zeros((10, points))
-for i in range(10):
-    M[i] = single_IV_sweep(keysight, 1, start, stop, points, aper=0.005, current_compliance=2e-4) #2e-4 for a 56k Ohm Resistor
+# M = np.zeros((10, points))
+# for i in range(10):
+#     M[i] = single_IV_sweep(keysight, 1, start, stop, points, aper=0.005, current_compliance=2e-4) #2e-4 for a 56k Ohm Resistor
 
 
-# saving the file
-if save_file:
-    filename = "4-28-Guang-LED.csv"
-    np.savetxt(filename, m, delimiter=',')
+# # saving the file
+# if save_file:
+#     filename = "4-28-Guang-LED.csv"
+#     np.savetxt(filename, m, delimiter=',')
 
-keysight.close()
+# keysight.close()
 
 
-'''
-    code for plotting the graph
-'''
+# '''
+#     code for plotting the graph
+# '''
 
-x = list(np.linspace(start, stop, points))
-y = list(np.mean(M, axis=0))
+# x = list(np.linspace(start, stop, points))
+# y = list(np.mean(M, axis=0))
 
-params, covariance = curve_fit(func, x, y)
-m_fit, c_fit = params
-slope = m_fit
-print("Slope: ", slope)
+# params, covariance = curve_fit(func, x, y)
+# m_fit, c_fit = params
+# slope = m_fit
+# print("Slope: ", slope)
 
-x_fit = np.linspace(min(x), max(x), 100)
-y_fit = func(x_fit, m_fit, c_fit)
-plt.scatter(x, y, s=6)
-slope_text = f"Slope: {slope}"
+# x_fit = np.linspace(min(x), max(x), 100)
+# y_fit = func(x_fit, m_fit, c_fit)
+# plt.scatter(x, y, s=6)
+# slope_text = f"Slope: {slope}"
 
-plt.plot(x_fit, y_fit, linestyle='--', color='red', label=f'Fitted Line ({slope_text})')
+# plt.plot(x_fit, y_fit, linestyle='--', color='red', label=f'Fitted Line ({slope_text})')
 
-print("volts",x)
-print("amps",y)
+# print("volts",x)
+# print("amps",y)
 
-plt.title("Diode IV")
-plt.xlabel('Voltage(V)')
-plt.ylabel('Current(Amps?)')
-plt.legend()
-plt.show()
+# plt.title("Diode IV")
+# plt.xlabel('Voltage(V)')
+# plt.ylabel('Current(Amps?)')
+# plt.legend()
+# plt.show()
