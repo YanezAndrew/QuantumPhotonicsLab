@@ -173,7 +173,7 @@ if __name__ == '__main__':
     # get_increment()
     increment = 0.1
 
-    x_steps = int(x / increment) + 1
+    x_steps = int(x / increment) +1
     y_steps = int(y / increment) + 1
 
     print("Resolution: ", x_steps, " x " , y_steps)
@@ -193,7 +193,11 @@ if __name__ == '__main__':
         # Create the figure and axis
         sweep(x_list, y_list, x, y, x_steps, y_steps, increment, axis_x, axis_y)
         # Set up the animation
+
         
+    axis_x.move_to(0)
+    axis_y.move_to(0)
+    
 
     # print(x_list)
     # print(len(x_list))

@@ -65,20 +65,17 @@ def single_IV_sweep(keysight=None, channel=1, start=0, stop=10, points=10, aper=
 
 
 keysight_usb_id = 'USB0::0x0957::0x8C18::MY51145486::INSTR'
-
 rm = pv.ResourceManager()
-print(rm)
-print(rm.list_resources())
+#print(rm.list_resources())
+#print(rm)
+keysight_USB_ID= rm.list_resources()[0]
+#keysight_USB_ID = "USB0::2391::35864::MY51145486::0::INSTR"
 try:
-    keysight = rm.open_resource(keysight_usb_id) # open Keysight according to the usb id of keysight that comes along with it.
+    keysight = rm.open_resource(keysight_USB_ID) # open Keysight according to the usb id of keysight that comes along with it.
 except:
     print("Failed to connect to Keysight. Please check your connection")
     exit(1)
 
-
-'''
-    code for testing if keysight is connected successfully
-'''
 print(keysight)
 print(keysight.query('*IDN?')) # return ID information
 keysight.write('*RST') # to reset all setup on the keysight
@@ -87,7 +84,7 @@ time.sleep(0.1)
 
 
 # initializing the parameters
-start = -8
+start = 0
 stop = 1
 points = 5
 save_file = False

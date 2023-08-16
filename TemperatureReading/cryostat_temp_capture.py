@@ -101,8 +101,8 @@ if __name__ == "__main__":
 
     #,cv2.CAP_DSHOW
     cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
-    cap.set(3, 1280) # set the resolution
-    cap.set(4, 720)
+    cap.set(3, 640) # set the resolution
+    cap.set(4, 480)
     cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
     cv2.namedWindow('Edges')
     cv2.setMouseCallback('Edges', on_mouse)
