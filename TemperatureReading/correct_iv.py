@@ -67,9 +67,13 @@ def sweeper(volt_start, volt_stop, steps, channel):
         #keysight.flush(pv.constants.VI_WRITE_BUF_DISCARD)
         #print(cnt)
         keysight.write(":SOUR:VOLT" + str(i))
+        # keysight.write(":INIT (@" + str(channel) + ")")
+        # keysight.write(":FETC:CURR? (@" + str(channel) + ")")
+        b = keysight.write(":TRAC[c]:FREE?")
+        print(b)
         keysight.write(":INIT (@" + str(channel) + ")")
-        keysight.write(":FETC:CURR? (@" + str(channel) + ")")
-        data.append(keysight.read())
+        keysight.write(":FETC:ARR:CURR? (@" + str(channel) + ")")
+        #data.append(keysight.read())
         keysight.clear()
     keysight.write(":OUTP" + str(channel) + " OFF")
     return data
@@ -78,9 +82,9 @@ def sweeper(volt_start, volt_stop, steps, channel):
 ####
 
 
-rm = pv.ResourceManager('@py')
-keysight_USB_ID= rm.list_resources()[0]
-print(keysight_USB_ID)
+rm = pv.ResourceManager()
+keysight_USB_ID= rm.list_resources()[1]
+print(rm.list_resources())
 #keysight_USB_ID = "USB0::2391::35864::MY51145486::0::INSTR"
 try:
     keysight = rm.open_resource(keysight_USB_ID) # open Keysight according to the usb id of keysight that comes along with it.
@@ -90,8 +94,9 @@ except:
 '''
 code for testing if keysight is connected successfully
 '''
+keysight.clear()
 keysight.write("*RST")
-pv.log_to_screen()
+#pv.log_to_screen()
 keysight.timeout = 5000
 keysight.write_termination = "\n"
 keysight.read_termination  = "\n"

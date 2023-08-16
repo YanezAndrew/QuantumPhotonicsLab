@@ -46,42 +46,35 @@ def create_csv_file(file_path):
         writer = csv.writer(csvfile)
 
 def single_IV_sweep(keysight=None, channel=1, start=0, stop=10, points=10, aper=1E-4, current_compliance=10E-4):
-    '''
-        Remember to connect, initialze keysight and import numpy before executing this function!
-        Runs an IV measurement on Channel 1.
-        Return a numpy array with the current values.
-    '''
-
-    # Source
-    #keysight.write("*RST")
+     # Source
+    keysight.write("*RST")
+    keysight.clear()
+    #keysight.write(":TRAC1:CLE")
     keysight.write(":SOUR:FUNC:MODE VOLT")
     keysight.write(":SOUR:VOLT:MODE SWE")
-    #keysight.write(":SOUR:VOLT:RANG:AUTO:LLIM 0.002")
     keysight.write(":SOUR:VOLT:STAR " + str(start))
     keysight.write(":SOUR:VOLT:STOP " + str(stop))
     keysight.write(":SOUR:VOLT:POIN " + str(points))
 
     # Sense
     keysight.write(":SENSE:FUNC ""CURR""")
-    #keysight.write(":SENSE:CURR:RANG:AUTO OFF")
-    #keysight.write(":SENSE:CURR:RANG 1E-9")
-    keysight.write(":SENSE:CURR:APER " + str(aper))
+    keysight.write(":SENSE:CURR:APER 1e-4")
     keysight.write(":SENSE:CURR:PROT " + str(current_compliance))
-    # keysight.write(":SENSE:CURR:RANG:AUTO:LLIM 1E-9") # 1nA
 
-    # Trigger
+    # Automatic Trigger
     keysight.write(":TRIG:SOUR AINT")
     keysight.write(":TRIG:COUN " + str(points))
+    
 
     # measurement
     keysight.write(":OUTP" + str(channel) + " ON")
     keysight.write(":INIT (@" + str(channel) + ")")
     keysight.write(":FETC:ARR:CURR? (@" + str(channel) + ")")
     data = keysight.read()
-    #print(data)
+    #print("data: ", data)
     keysight.write(":OUTP" + str(channel) + " OFF")
 
-
+    #keysight.write(":TRAC1:CLE")
     # data convertion
     l = data.split(',')
     current_list = np.zeros(points, dtype=np.float64)
@@ -166,18 +159,18 @@ if __name__ == "__main__":
     click_end = None
     start_mouse_tracking = False
     crop_img = False
-    duration = 60
+    duration = 10
     start = True
     start_time = None
     error_cnt = 0
 
 
-    start = 0
-    stop = 2
-    points = 125
+    start = 2
+    stop = -8
+    points = 700
 
     #,cv2.CAP_DSHOW
-    cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
+    cap = cv2.VideoCapture(2,cv2.CAP_DSHOW)
     cap.set(3, 1280) # set the resolution
     cap.set(4, 720)
     cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
@@ -220,6 +213,8 @@ if __name__ == "__main__":
                     M = np.zeros((10, points))
                     for i in range(10):
                         M[i] = single_IV_sweep(keysight, 1, start, stop, points, 5e-3)
+                        keysight.close()
+                        keysight = intialize_device()
                     print(M)
                     #print(type(np.linspace(start, stop, points)))
                     x = list(np.linspace(start, stop, points))
