@@ -63,8 +63,8 @@ def sweeper(volt_start, volt_stop, steps, channel):
     data = []
     keysight.write(":OUTP" + str(channel) + " ON")
     for i, cnt in enumerate(np.linspace(volt_start, volt_stop, steps)):
-        keysight.flush(pv.constants.VI_READ_BUF)
-        keysight.flush(pv.constants.VI_WRITE_BUF_DISCARD)
+        #keysight.flush(pv.constants.VI_READ_BUF)
+        #keysight.flush(pv.constants.VI_WRITE_BUF_DISCARD)
         #print(cnt)
         keysight.write(":SOUR:VOLT" + str(i))
         keysight.write(":INIT (@" + str(channel) + ")")
@@ -78,8 +78,9 @@ def sweeper(volt_start, volt_stop, steps, channel):
 ####
 
 
-rm = pv.ResourceManager()
+rm = pv.ResourceManager('@py')
 keysight_USB_ID= rm.list_resources()[0]
+print(keysight_USB_ID)
 #keysight_USB_ID = "USB0::2391::35864::MY51145486::0::INSTR"
 try:
     keysight = rm.open_resource(keysight_USB_ID) # open Keysight according to the usb id of keysight that comes along with it.
@@ -89,18 +90,15 @@ except:
 '''
 code for testing if keysight is connected successfully
 '''
-pv.log_to_screen()
-print(keysight)
-current_compliance = 5e-2
-#keysight.write(":SYST:ERR:ALL?")
-keysight.clear()
 keysight.write("*RST")
-keysight.write("*CLS")
-#buffer_size = 50000
-#keysight.set_visa_attribute(pv.constants.VI_ATTR_RD_BUF_OPER_MODE, buffer_size)
-keysight.timeout = 1000
+pv.log_to_screen()
+keysight.timeout = 5000
 keysight.write_termination = "\n"
 keysight.read_termination  = "\n"
+current_compliance = 5e-2
+#keysight.write(":SYST:ERR:ALL?")
+#buffer_size = 50000
+#keysight.set_visa_attribute(pv.constants.VI_ATTR_RD_BUF_OPER_MODE, buffer_size)
 #print(keysight.query('*IDN?')) # return ID information
 keysight.write(":SOUR:FUNC:MODE VOLT")
 keysight.write(":SENSE:FUNC ""CURR""")
@@ -114,8 +112,8 @@ points = 300
 
 ch = 1
 print(sweeper(start, stop, points, ch))
-keysight.clear()
 keysight.close()
+rm.close()
 
 
 ######
