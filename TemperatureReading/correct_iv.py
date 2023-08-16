@@ -59,79 +59,69 @@ def single_IV_sweep(keysight=None, channel=1, start=0, stop=10, points=10, aper=
 
     return current_list
 
+def sweeper(volt_start, volt_stop, steps, channel):
+    data = []
+    keysight.write(":OUTP" + str(channel) + " ON")
+    for i, cnt in enumerate(np.linspace(volt_start, volt_stop, steps)):
+        keysight.flush(pv.constants.VI_READ_BUF)
+        keysight.flush(pv.constants.VI_WRITE_BUF_DISCARD)
+        #print(cnt)
+        keysight.write(":SOUR:VOLT" + str(i))
+        keysight.write(":INIT (@" + str(channel) + ")")
+        keysight.write(":FETC:CURR? (@" + str(channel) + ")")
+        data.append(keysight.read())
+        keysight.clear()
+    keysight.write(":OUTP" + str(channel) + " OFF")
+    return data
 
 
 ####
 
-# keysight_usb_id = 'USB0::0x0957::0x8C18::MY51145486::INSTR'
-
-# rm = pv.ResourceManager()
-# print(rm)
-# print(rm.list_resources())
-# try:
-#     keysight = rm.open_resource(keysight_usb_id) # open Keysight according to the usb id of keysight that comes along with it.
-# except:
-#     print("Failed to connect to Keysight. Please check your connection")
-#     exit(1)
-
-
-# '''
-#     code for testing if keysight is connected successfully
-# '''
-# print(keysight)
-# print(keysight.query('*IDN?')) # return ID information
-# keysight.write('*RST') # to reset all setup on the keysight
-# time.sleep(0.1)
-# keysight.write("*RST")
-# keysight.write("*CLS")
-# keysight.write(":SOUR:FUNC:MODE VOLT")
-# keysight.write(":SENSE:FUNC ""CURR""")
-# keysight.write(":SENSE:CURR:PROT " + str(current_compliance))
-
-
-def sweeper(volt_start, volt_stop, steps, channel):
-    data = []
-    keysight.write(":OUTP" + str(channel) + " ON")
-    for i in np.linespace(volt_start, volt_stop, steps):
-        keysight.write(":SOUR:VOLT" + str(i))
-        keysight.write(":INIT (@" + str(channel) + ")")
-        keysight.write(":FETC:ARR:CURR? (@" + str(channel) + ")")
-        data.append(keysight.read())
-    keysight.write(":OUTP" + str(channel) + " OFF")
-    return data
-    
-
-
-keysight_usb_id = 'USB0::0x0957::0x8C18::MY51145486::INSTR'
 
 rm = pv.ResourceManager()
-print(rm)
-print(rm.list_resources())
+keysight_USB_ID= rm.list_resources()[0]
+#keysight_USB_ID = "USB0::2391::35864::MY51145486::0::INSTR"
 try:
-    keysight = rm.open_resource(keysight_usb_id) # open Keysight according to the usb id of keysight that comes along with it.
+    keysight = rm.open_resource(keysight_USB_ID) # open Keysight according to the usb id of keysight that comes along with it.
 except:
     print("Failed to connect to Keysight. Please check your connection")
     exit(1)
-
-
 '''
-    code for testing if keysight is connected successfully
+code for testing if keysight is connected successfully
 '''
+pv.log_to_screen()
 print(keysight)
-print(keysight.query('*IDN?')) # return ID information
-keysight.write('*RST') # to reset all setup on the keysight
-time.sleep(0.1)
+current_compliance = 5e-2
+#keysight.write(":SYST:ERR:ALL?")
+keysight.clear()
+keysight.write("*RST")
+keysight.write("*CLS")
+#buffer_size = 50000
+#keysight.set_visa_attribute(pv.constants.VI_ATTR_RD_BUF_OPER_MODE, buffer_size)
+keysight.timeout = 1000
+keysight.write_termination = "\n"
+keysight.read_termination  = "\n"
+#print(keysight.query('*IDN?')) # return ID information
+keysight.write(":SOUR:FUNC:MODE VOLT")
+keysight.write(":SENSE:FUNC ""CURR""")
+keysight.write(":SENSE:CURR:PROT " + str(0))
 
+# initializing the parameters
+save_file = False
+start = 0
+stop = 1
+points = 300
+
+ch = 1
+print(sweeper(start, stop, points, ch))
+keysight.clear()
+keysight.close()
 
 
 ######
 
 
-# initializing the parameters
-start = 0
-stop = 1
-points = 5
-save_file = False
+
 
 # M = np.zeros((10, points))
 # for i in range(10):
