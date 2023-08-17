@@ -4,6 +4,7 @@ import pytesseract
 import time
 import csv
 import os
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -45,17 +46,18 @@ def create_csv_file(file_path):
     with open(file_path, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
 
-def single_IV_sweep(keysight=None, channel=1, start=0, stop=10, points=10, aper=1E-4, current_compliance=10E-4):
+def single_IV_sweep(keysight=None, channel=1, start=0, stop=10, points=10, aper=1E-4, current_compliance = 5e-3):
      # Source
     keysight.write("*RST")
     keysight.clear()
+    keysight.timeout = 25000
     #keysight.write(":TRAC1:CLE")
     keysight.write(":SOUR:FUNC:MODE VOLT")
     keysight.write(":SOUR:VOLT:MODE SWE")
     keysight.write(":SOUR:VOLT:STAR " + str(start))
     keysight.write(":SOUR:VOLT:STOP " + str(stop))
     keysight.write(":SOUR:VOLT:POIN " + str(points))
-
+    print(current_compliance)
     # Sense
     keysight.write(":SENSE:FUNC ""CURR""")
     keysight.write(":SENSE:CURR:APER 1e-4")
@@ -167,7 +169,7 @@ if __name__ == "__main__":
 
     start = 2
     stop = -8
-    points = 700
+    points = 1500
 
     #,cv2.CAP_DSHOW
     cap = cv2.VideoCapture(2,cv2.CAP_DSHOW)
@@ -212,7 +214,7 @@ if __name__ == "__main__":
                     ###########
                     M = np.zeros((10, points))
                     for i in range(10):
-                        M[i] = single_IV_sweep(keysight, 1, start, stop, points, 5e-3)
+                        M[i] = single_IV_sweep(keysight, 1, start, stop, points, 1E-4, 5e-3)
                         keysight.close()
                         keysight = intialize_device()
                     print(M)
