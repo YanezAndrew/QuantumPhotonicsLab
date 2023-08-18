@@ -50,7 +50,6 @@ def single_IV_sweep(keysight=None, channel=1, start=0, stop=10, points=10, aper=
      # Source
     keysight.write("*RST")
     keysight.clear()
-    keysight.timeout = 25000
     #keysight.write(":TRAC1:CLE")
     keysight.write(":SOUR:FUNC:MODE VOLT")
     keysight.write(":SOUR:VOLT:MODE SWE")
@@ -100,21 +99,22 @@ def intialize_device():
     code for testing if keysight is connected successfully
     '''
     print(keysight)
-    #print(keysight.query('*IDN?')) # return ID information THIS BREAKS PROGRAM
+    keysight.timeout = 25000
+    print(keysight.query('*IDN?')) # return ID information THIS BREAKS PROGRAM
     keysight.clear()
     #keysight.write('*RST') # to reset all setup on the keysight
     return keysight
 
-def sweeper(volt_start, volt_stop, steps, channel):
-    data = []
-    keysight.write(":OUTP" + str(channel) + " ON")
-    for i in np.linespace(volt_start, volt_stop, steps):
-        keysight.write(":SOUR:VOLT" + str(i))
-        keysight.write(":INIT (@" + str(channel) + ")")
-        keysight.write(":FETC:ARR:CURR? (@" + str(channel) + ")")
-        data.append(keysight.read())
-    keysight.write(":OUTP" + str(channel) + " OFF")
-    return data
+# def sweeper(volt_start, volt_stop, steps, channel):
+#     data = []
+#     keysight.write(":OUTP" + str(channel) + " ON")
+#     for i in np.linespace(volt_start, volt_stop, steps):
+#         keysight.write(":SOUR:VOLT" + str(i))
+#         keysight.write(":INIT (@" + str(channel) + ")")
+#         keysight.write(":FETC:ARR:CURR? (@" + str(channel) + ")")
+#         data.append(keysight.read())
+#     keysight.write(":OUTP" + str(channel) + " OFF")
+#     return data
 
 def func(x, m, c):
     return m * x + c
@@ -169,7 +169,7 @@ if __name__ == "__main__":
 
     start = 2
     stop = -8
-    points = 1500
+    points = 3000
 
     #,cv2.CAP_DSHOW
     cap = cv2.VideoCapture(2,cv2.CAP_DSHOW)
