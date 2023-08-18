@@ -11,9 +11,9 @@ xvals = np.array(df['Voltage'].values[0])
 plt.figure(dpi=150)
 
 # Create a custom colormap with increased intensity for negative slopes
-colors = [(1, 1, 0), (0, 0, 1)]  # Yellow to Blue
-cmap_name = 'yellow_to_blue'
-cm = LinearSegmentedColormap.from_list(cmap_name, colors)
+#colors = [(1, 1, 0), (0, 0, 1)]  # Yellow to Blue
+#cmap_name = 'yellow_to_blue'
+cm = plt.cm.get_cmap("jet").reversed()
 plt.xlim(0, 1.5)
 plt.ylim(1e-14, 10e-3)
 prev = df['Temperature'][0]
@@ -32,5 +32,6 @@ for cnt, i in enumerate(df['Temperature']):
         plt.semilogy(xvals, np.abs(df['Amps'][cnt]), color=color, label=f'Curve {i + 1}')
         #plt.legend()
         #plt.pause(0.000001)
-
+plt.xlabel("Voltage [V]")
+plt.ylabel("Amps [Log(A)]")
 plt.show()
