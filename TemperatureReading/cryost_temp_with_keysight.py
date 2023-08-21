@@ -161,7 +161,7 @@ if __name__ == "__main__":
     click_end = None
     start_mouse_tracking = False
     crop_img = False
-    duration = 10
+    duration = 60
     start = True
     start_time = None
     error_cnt = 0
@@ -169,10 +169,10 @@ if __name__ == "__main__":
 
     start = 2
     stop = -8
-    points = 3000
+    points = 1500
 
     #,cv2.CAP_DSHOW
-    cap = cv2.VideoCapture(2,cv2.CAP_DSHOW)
+    cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
     cap.set(3, 1280) # set the resolution
     cap.set(4, 720)
     cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
