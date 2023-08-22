@@ -57,7 +57,7 @@ from PrincetonInstruments.LightField.AddIns import SpectrometerSettings
 # --------------------------- Global Parameter Declarations (Modify to desired settings)
 #experiment_name = "ff"
 # If you are running real experiment please specify code_type = 1 else for demo
-code_type = 1
+code_type = 213
 enable_background = 1
 serialNumber = 2108112774
 center_wavelength = 780     #nm
