@@ -14,6 +14,7 @@ import time
 from datetime import datetime
 import pandas as pd
 from scipy.optimize import curve_fit
+import re
 
 def on_mouse(event, x, y, flags, param):
     global click_start, click_end, start_mouse_tracking
@@ -220,10 +221,14 @@ if __name__ == "__main__":
 
                     # Extract the text from the cropped image
                     temp = (pytesseract.image_to_string(crop, lang='eng', config='--psm 6')).replace('\n', '')
+                    temp = re.sub(r'[^0-9.]', '', temp)
                     if not is_float(temp):
                         image_filename = os.path.join("error/", f"ERROR_{current_date}_ ({error_cnt}).jpg")
                         cv2.imwrite(image_filename, crop)
                         error_cnt += 1
+                    else:
+                        temp = float(temp)
+                        temp = "{:.3f}".format(temp)
                     
                     plt.scatter(x, y, s=6)
                     plt.pause(0.01)  # Pause for 0.01 seconds to show each step
