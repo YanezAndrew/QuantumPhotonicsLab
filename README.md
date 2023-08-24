@@ -13,3 +13,5 @@ Here are some plots of the data I took from Electro Optic Modulators. As the tem
 
 
 ![Device 2 Plot - Closer](https://github.com/YanezAndrew/QuantumPhotonicsLab/assets/111101364/2ae2044e-a29b-425c-a107-0ffa08d827b2)
+
+![Final Talk Slides - Andrew Yanez.pptx](https://github.com/YanezAndrew/QuantumPhotonicsLab/files/12432712/Final.Talk.Slides.-.Andrew.Yanez.pptx)
