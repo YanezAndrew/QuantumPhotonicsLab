@@ -1,6 +1,7 @@
 # QuantumPhotonicsLab
 
 Uploading my code from the Quantum Foundry Internship Here so it is easier to keep track off!
+Here are some plots of the data I took from Electro Optic Modulators. As the temperatures goes from 293K to 4K there is a shift in the I-V curve due to the carrier freeze out that occurs at low temperatures.
 
 ![Device 1 - ALL](https://github.com/YanezAndrew/QuantumPhotonicsLab/assets/111101364/7748466c-b8af-43f7-8ee7-f2e2bf6b15cc)
 
