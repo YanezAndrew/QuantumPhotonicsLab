@@ -222,6 +222,7 @@ if __name__ == "__main__":
                     # Extract the text from the cropped image
                     temp = (pytesseract.image_to_string(crop, lang='eng', config='--psm 6')).replace('\n', '')
                     temp = re.sub(r'[^0-9.]', '', temp)
+                    temp = re.sub(r'\.(?=.*\.)', '', temp)
                     if not is_float(temp):
                         image_filename = os.path.join("error/", f"ERROR_{current_date}_ ({error_cnt}).jpg")
                         cv2.imwrite(image_filename, crop)
