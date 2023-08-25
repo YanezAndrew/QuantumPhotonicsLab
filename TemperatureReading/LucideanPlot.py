@@ -20,7 +20,7 @@ xvals = np.array(df['Voltage'].values[0])
 fig, ax = plt.subplots(figsize=(16, 9))
 fig.suptitle("Lucidean EOM Temperature IV - Device #1")
 
-cm = plt.cm.get_cmap("jet")
+cm = plt.cm.get_cmap("jet").reversed()
 # num_colors = len(df['Temperature'])  # Adjust the number of colors as needed
 # color_array = plt.cm.jet(np.linspace(0, 1, num_colors))
 # cm = LinearSegmentedColormap.from_list('custom_jet', color_array, N=num_colors)
