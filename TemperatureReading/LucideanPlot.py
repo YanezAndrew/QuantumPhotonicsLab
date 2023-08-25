@@ -5,7 +5,6 @@ import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.colors import ListedColormap
 import time
-from decimal import Decimal
 start_time = time.time()
 # 'data_2023-08-10 (50) - Lucidean.csv'
 # 'data_2023-08-18 (5) - Lucidean_2.csv'

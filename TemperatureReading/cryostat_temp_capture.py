@@ -13,6 +13,7 @@ import time
 from datetime import datetime
 import pandas as pd
 from scipy.optimize import curve_fit
+import re
 
 def on_mouse(event, x, y, flags, param):
     global click_start, click_end, start_mouse_tracking
@@ -89,7 +90,7 @@ if __name__ == "__main__":
     click_end = None
     start_mouse_tracking = False
     crop_img = False
-    duration = 5
+    duration = 2
     start = True
     start_time = None
     error_cnt = 0
@@ -100,9 +101,9 @@ if __name__ == "__main__":
     save_file = False
 
     #,cv2.CAP_DSHOW
-    cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
-    cap.set(3, 640) # set the resolution
-    cap.set(4, 480)
+    cap = cv2.VideoCapture(1,cv2.CAP_DSHOW)
+    cap.set(3, 1280) # set the resolution
+    cap.set(4, 720)
     cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
     cv2.namedWindow('Edges')
     cv2.setMouseCallback('Edges', on_mouse)
@@ -133,9 +134,6 @@ if __name__ == "__main__":
                     y_1 = end_point[1]
                     y_2 = start_point[1]
 
-                # print(start_point[1])
-                # print(end_point[1])
-                # print(slope)
                 crop = edges[y_1:y_2, x_1:x_2]
                 cv2.imshow('Edges', crop)
                 if start_time == None:
@@ -151,21 +149,26 @@ if __name__ == "__main__":
 
                     # Extract the text from the cropped image
                     temp = (pytesseract.image_to_string(crop, lang='eng', config='--psm 6')).replace('\n', '')
+                    temp = re.sub(r'[^0-9.]', '', temp)
+                    temp = re.sub(r'\.(?=.*\.)', '', temp)
                     if not is_float(temp):
                         image_filename = os.path.join("error/", f"ERROR_{current_date}_ ({error_cnt}).jpg")
                         cv2.imwrite(image_filename, crop)
                         error_cnt += 1
+                    else:
+                        temp = float(temp)
+                        temp = "{:.3f}".format(temp)
                         
                     # Append the data to the list
                     x = [0.0, 0.25, 0.5, 0.75, 1.0]
                     y = [2.4119e-09, 4.482385e-06, 8.970615000000001e-06, 1.3449680000000001e-05, 1.794105e-05]
                     data.append([time.ctime(start_time), temp, x, y, resistance])
                     df = pd.DataFrame(data, columns=['Time', 'Temperature', 'Voltage','Amps', 'Resistance'])
-                    print(df.dtypes)
+                    #print(df.dtypes)
                     print(temp, resistance)
                     print('Current Time:', time.ctime(time.time()))
                     start_time = None
-                    print(df['Temperature'])
+                    #print(df['Temperature'])
                     df.to_csv(file_path, index=False)
             else:
                 cv2.imshow('Edges', edges)
