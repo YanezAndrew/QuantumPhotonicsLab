@@ -57,13 +57,13 @@ from PrincetonInstruments.LightField.AddIns import SpectrometerSettings
 # --------------------------- Global Parameter Declarations (Modify to desired settings)
 #experiment_name = "ff"
 # If you are running real experiment please specify code_type = 1 else for demo
-code_type = 213
+code_type = 0
 enable_background = 1
 serialNumber = 2108112774
 center_wavelength = 780     #nm
 v_res = 1       # voltage spacing of the piezo
-increment = (10 ** -4) # 1 volt is around 100nm
-v_range =50  # total voltage movement of the piezo
+increment = (10 ** -2) #10 ** -4 1 volt is around 100nm
+v_range =2 # total voltage movement of the piezo
 t_exp = 0.5     # exposure time in seconds
 x_step_range = v_range/v_res
 y_step_range = v_range/v_res
@@ -325,14 +325,8 @@ esp = ESP(device_ip, device_port)
 axis_x = esp.axis(1)
 axis_y = esp.axis(2)
 
-axis_x.travel_limits()
-axis_y.travel_limits()
-
-axis_x.backlash()
-axis_y.backlash()
-
-axis_x.home_search()
-axis_y.home_search()
+axis_y.move_to(0)
+axis_x.move_to(0)
 
 
 
@@ -424,7 +418,7 @@ v_x=0
 v_y=0
 PL_plot = np.zeros((int(x_step_range),int(y_step_range)))
 for v_x in np.arange(0, v_range, v_res):
-    x= int(v_x/v_res)
+    x = int(v_x/v_res)
     axis_x.move_to(v_x * increment)
     time.sleep(0.3)
     # Read_X(hdl)
@@ -432,7 +426,7 @@ for v_x in np.arange(0, v_range, v_res):
     if v_y == 0:
         for v_y in np.arange(0, v_range, v_res):
             y = int(v_y/v_res)
-            axis_x.move_to(v_y * increment)
+            axis_y.move_to(v_y * increment)
             time.sleep(0.3)
             # Read_X(hdl)
             # Read_Y(hdl)
@@ -453,7 +447,7 @@ for v_x in np.arange(0, v_range, v_res):
             time.sleep(0.8)
     else:
         print("an error has occured in movement of stage")
-        print("last scanned position was pixel", x,y)
+        print("last scanned position was pixel", x, y)
         exit()
 print("PL Map completed, application will save and abort")
 # ----------------------------------------------------- END
@@ -463,9 +457,9 @@ print("PL Map completed, application will save and abort")
 
 time.sleep(3)
 print(PL_plot)
-plt.imshow(np.flip(PL_plot,0), cmap='Greys', interpolation='nearest')
+#plt.imshow(np.flip(PL_plot,0), cmap='Greys', interpolation='nearest')
 plt.title("PL data realtime normalized")
-plt.ion()
+#plt.ion()
 plt.show()
 now = datetime.now()
 save_filename = 'PLmap' + now.strftime("%d-%m-%Y-%H-%M-%S")
