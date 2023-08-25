@@ -11,7 +11,7 @@ start_time = time.time()
 # 'data_2023-08-18 (5) - Lucidean_2.csv'
 # 'data_2023-08-22 (4) - Lucidean_2nDevice.csv'
 
-df = pd.read_csv('data_2023-08-22 (4) - Lucidean_2nDevice.csv')
+df = pd.read_csv('data_2023-08-18 (5) - Lucidean_2.csv')
 df = df.sort_values(by='Temperature', ascending=False)
 df.reset_index(drop=True, inplace=True)
 df['Voltage'] = df['Voltage'].apply(ast.literal_eval)
@@ -19,9 +19,9 @@ df['Amps'] = df['Amps'].apply(ast.literal_eval)
 
 xvals = np.array(df['Voltage'].values[0])
 fig, ax = plt.subplots(figsize=(16, 9))
-fig.suptitle("Lucidean EOM Temperature IV - Device #2")
+fig.suptitle("Lucidean EOM Temperature IV - Device #1")
 
-cm = plt.cm.get_cmap("jet").reversed()
+cm = plt.cm.get_cmap("jet")
 # num_colors = len(df['Temperature'])  # Adjust the number of colors as needed
 # color_array = plt.cm.jet(np.linspace(0, 1, num_colors))
 # cm = LinearSegmentedColormap.from_list('custom_jet', color_array, N=num_colors)
