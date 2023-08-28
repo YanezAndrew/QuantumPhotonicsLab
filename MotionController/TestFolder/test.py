@@ -27,13 +27,13 @@ def move_left(x_list, steps, increment):
 
 
 
-code_type = 1
+code_type = 0
 enable_background = 1
 serialNumber = 2108112774
 center_wavelength = 780     #nm
 v_res = 1       # voltage spacing of the piezo
 increment = (10 ** -4) # 1 volt is around 100nm
-v_range =50  # total voltage movement of the piezo
+v_range =5  # total voltage movement of the piezo
 t_exp = 0.5     # exposure time in seconds
 x_step_range = v_range/v_res
 y_step_range = v_range/v_res
@@ -57,18 +57,20 @@ for v_x in np.arange(0, v_range, v_res):
     x= int(v_x/v_res)
     #axis_x.move_to(v_x * increment)
     print("MOVING X")
+    time.sleep(0.3)
     #time.sleep(0.3)
     # Read_X(hdl)
     # Read_Y(hdl)
     if v_y == 0:
         for v_y in np.arange(0, v_range, v_res):
             y = int(v_y/v_res)
-            #axis_x.move_to(v_y * increment)
+            #axis_y.move_to(v_y * increment)
             #time.sleep(0.3)
             # Read_X(hdl)
             # Read_Y(hdl)
             print("we are in position ", x, y)
-            print("MOVING X")
+            print("MOVING Y")
+            time.sleep(0.3)
             #AcquireMoveAndLock(baseFilename)
             #time.sleep(0.8)
             #time.sleep(t_exp)
@@ -81,6 +83,7 @@ for v_x in np.arange(0, v_range, v_res):
             # Read_Y(hdl)
             print("we are in position ", x, y)
             print("MOVING Y")
+            time.sleep(0.3)
             #AcquireMoveAndLock(baseFilename)
             #time.sleep(t_exp)
             #time.sleep(0.8)
