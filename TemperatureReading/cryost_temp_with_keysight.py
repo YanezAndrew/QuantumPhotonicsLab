@@ -152,6 +152,7 @@ if __name__ == "__main__":
     lab_index = current_dir.find("QuantumPhotonicsLab")
     partial_path = current_dir[:lab_index + len("QuantumPhotonicsLab")]
     current_dir = f"{partial_path}\TemperatureReading\Data"
+    error_path = f"{partial_path}\TemperatureReading\error"
     print(current_dir)
 
     # Get the current date
@@ -261,7 +262,7 @@ if __name__ == "__main__":
                     temp = re.sub(r'[^0-9.]', '', temp)
                     temp = re.sub(r'\.(?=.*\.)', '', temp)
                     if not is_float(temp):
-                        image_filename = os.path.join("error/", f"ERROR_{current_date}_ ({error_cnt}).jpg")
+                        image_filename = os.path.join(error_path, f"ERROR_{current_date}_ ({error_cnt}).jpg")
                         cv2.imwrite(image_filename, crop)
                         error_cnt += 1
                     else:

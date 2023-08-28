@@ -5,12 +5,19 @@ import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.colors import ListedColormap
 import time
+import os
 start_time = time.time()
 # 'data_2023-08-10 (50) - Lucidean.csv'
 # 'data_2023-08-18 (5) - Lucidean_2.csv'
 # 'data_2023-08-22 (4) - Lucidean_2nDevice.csv'
 
-df = pd.read_csv('data_2023-08-18 (5) - Lucidean_2.csv')
+current_dir = os.getcwd()
+lab_index = current_dir.find("QuantumPhotonicsLab")
+partial_path = current_dir[:lab_index + len("QuantumPhotonicsLab")]
+current_dir = f"{partial_path}\TemperatureReading\Data"
+file_path = os.path.join(current_dir, "data_2023-08-18 (5) - Lucidean_2.csv")
+
+df = pd.read_csv(file_path)
 df = df.sort_values(by='Temperature', ascending=False)
 df.reset_index(drop=True, inplace=True)
 df['Voltage'] = df['Voltage'].apply(ast.literal_eval)
