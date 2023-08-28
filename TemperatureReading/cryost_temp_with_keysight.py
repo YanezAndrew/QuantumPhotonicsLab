@@ -146,9 +146,12 @@ if __name__ == "__main__":
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
     keysight = intialize_device()
-    directory_path = "QuantumPhotonicsLab\TemperatureReading\Data"
-
-    current_dir = os.path.join(os.getcwd(), directory_path)
+    
+    # Find Correct Directory QuantumPhotonicsLab\TemperatureReading\Data
+    current_dir = os.getcwd()
+    lab_index = current_dir.find("QuantumPhotonicsLab")
+    partial_path = current_dir[:lab_index + len("QuantumPhotonicsLab")]
+    current_dir = f"{partial_path}\TemperatureReading\Data"
     print(current_dir)
 
     # Get the current date
@@ -168,15 +171,16 @@ if __name__ == "__main__":
     
     
     # If the file already exists, add a number to the file name
-
     while file_exists:
         file_name = f"data_{current_date} ({cnt}).csv"
         file_path = os.path.join(current_dir, file_name)
         file_exists = os.path.exists(file_path)
         cnt += 1
+
     # Initialize CSV File
     create_csv_file(file_path)
 
+    # Initialize Variables 
     reading_count = 0
     count = 0
     data = []
@@ -190,12 +194,12 @@ if __name__ == "__main__":
     start_time = None
     error_cnt = 0
 
-
+    # Voltage Range and Points
     start = 2
     stop = -8
     points = 1500
 
-    #,cv2.CAP_DSHOW
+    #,cv2.CAP_DSHOW (Take Off for Mac)
     cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
     cap.set(3, 1280) # set the resolution
     cap.set(4, 720)
@@ -241,10 +245,9 @@ if __name__ == "__main__":
                         M[i] = single_IV_sweep(keysight, 1, start, stop, points, 1E-4, 5e-3)
                         keysight.close()
                         keysight = intialize_device()
-                    #print(M)
+
                     x = list(np.linspace(start, stop, points))
                     y = list(np.mean(M, axis=0))
-                       
                     params, covariance = curve_fit(func, x, y)
                     m_fit, c_fit = params
                     slope = m_fit
@@ -267,15 +270,16 @@ if __name__ == "__main__":
                     
                     plt.scatter(x, y, s=6)
                     plt.pause(0.01)  # Pause for 0.01 seconds to show each step
+
                     # Append the data to the list
                     data.append([time.ctime(start_time), temp, x, y, resistance])
                     df = pd.DataFrame(data, columns=['Time', 'Temperature', 'Voltage','Amps', 'Resistance'])
-                    #print(df.dtypes)
+                    df.to_csv(file_path, index=False)
                     print(temp, resistance)
                     print('Current Time:', time.ctime(time.time()))
+                    # Reset Time
                     start_time = None
                     print(df['Temperature'])
-                    df.to_csv(file_path, index=False)
             else:
                 cv2.imshow('Edges', edges)
         if paused and click_start is not None and click_end is not None:
