@@ -17,6 +17,14 @@ from scipy.optimize import curve_fit
 import re
 
 def on_mouse(event, x, y, flags, param):
+    """
+        Global Variables:
+            click_start = (x, y)
+            click_end = (x, y)
+
+        Tracks the point at which left mouse button is clicked
+        and the point at which it is released.
+    """
     global click_start, click_end, start_mouse_tracking
     if start_mouse_tracking and event == cv2.EVENT_LBUTTONDOWN:
         click_start = (x, y)
@@ -25,22 +33,39 @@ def on_mouse(event, x, y, flags, param):
         click_end = (x, y)
         print("Mouse click end:", click_end)
 def key_press(key):
+    """
+        Variable:
+            key
+
+        Each key has a specific action
+
+        Esc (27) - stops
+        Space Bar (32) - pauses
+        b - resizes window back to original
+
+    """
     # Wait for Esc key to stop
     if key == 27:
         return "Escape"
     # Start mouse tracking when "Space Bar" key is pressed
     if key == 32:
         return "Space Bar"
-
+    # Resize
     if key == ord('b'):
         return 'B'
     
 def create_csv_file(file_path):
-    filename = 'data.csv'  # Specify the name of the CSV file
+    """
+        Variable:
+            file_path
+        
+        Creates a csv file if there isn't one with the same name
+
+    """
     
     # Check if the file already exists
-    if os.path.exists(filename):
-        print(f"File '{filename}' already exists.")
+    if os.path.exists(file_path):
+        print(f"File '{file_path}' already exists.")
         return
     
     # Open the file in write mode
@@ -50,14 +75,12 @@ def create_csv_file(file_path):
 def single_IV_sweep(keysight=None, channel=1, start=0, stop=10, points=10, aper=1E-4, current_compliance = 5e-3):
      # Source
     keysight.write("*RST")
-    keysight.clear()
-    #keysight.write(":TRAC1:CLE")
+
     keysight.write(":SOUR:FUNC:MODE VOLT")
     keysight.write(":SOUR:VOLT:MODE SWE")
     keysight.write(":SOUR:VOLT:STAR " + str(start))
     keysight.write(":SOUR:VOLT:STOP " + str(stop))
     keysight.write(":SOUR:VOLT:POIN " + str(points))
-    print(current_compliance)
     # Sense
     keysight.write(":SENSE:FUNC ""CURR""")
     keysight.write(":SENSE:CURR:APER 1e-4")
@@ -76,8 +99,7 @@ def single_IV_sweep(keysight=None, channel=1, start=0, stop=10, points=10, aper=
     #print("data: ", data)
     keysight.write(":OUTP" + str(channel) + " OFF")
 
-    #keysight.write(":TRAC1:CLE")
-    # data convertion
+    # Data Conversion to List of Voltages
     l = data.split(',')
     current_list = np.zeros(points, dtype=np.float64)
     for i in range(points):
@@ -96,20 +118,23 @@ def intialize_device():
     except:
         print("Failed to connect to Keysight. Please check your connection")
         exit(1)
-    '''
-    code for testing if keysight is connected successfully
-    '''
-    print(keysight)
+  
+    # Set Timeout or Else Program could crash 25 sec
     keysight.timeout = 25000
-    print(keysight.query('*IDN?')) # return ID information THIS BREAKS PROGRAM
+    print(keysight.query('*IDN?'))
     keysight.clear()
-    #keysight.write('*RST') # to reset all setup on the keysight
     return keysight
 
-def func(x, m, c):
-    return m * x + c
+def func(x, m, b):
+    """
+        Curve fits a linear line using the equation y = mx + b
+    """
+    return m * x + b
 
 def is_float(value):
+    """
+        Checks if value is a valid float.
+    """
     try:
         float(value)
         return True
@@ -117,13 +142,25 @@ def is_float(value):
         return False
 
 if __name__ == "__main__":
+    # Opens the .exe file to convert photo into python float
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
     keysight = intialize_device()
+    
+    # Find Correct Directory QuantumPhotonicsLab\TemperatureReading\Data
     current_dir = os.getcwd()
+    lab_index = current_dir.find("QuantumPhotonicsLab")
+    partial_path = current_dir[:lab_index + len("QuantumPhotonicsLab")]
+    current_dir = f"{partial_path}\TemperatureReading\Data"
+    error_path = f"{partial_path}\TemperatureReading\error"
+    print(current_dir)
+
     # Get the current date
     current_date = datetime.now().strftime('%Y-%m-%d')
+
+    # Initialize CSV count
     cnt = 0
+
     # File name with the current date
     file_name = f"data_{current_date} ({cnt}).csv"
 
@@ -135,14 +172,16 @@ if __name__ == "__main__":
     
     
     # If the file already exists, add a number to the file name
-
     while file_exists:
         file_name = f"data_{current_date} ({cnt}).csv"
         file_path = os.path.join(current_dir, file_name)
         file_exists = os.path.exists(file_path)
         cnt += 1
+
     # Initialize CSV File
     create_csv_file(file_path)
+
+    # Initialize Variables 
     reading_count = 0
     count = 0
     data = []
@@ -156,12 +195,12 @@ if __name__ == "__main__":
     start_time = None
     error_cnt = 0
 
-
+    # Voltage Range and Points
     start = 2
     stop = -8
     points = 1500
 
-    #,cv2.CAP_DSHOW
+    #,cv2.CAP_DSHOW (Take Off for Mac)
     cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
     cap.set(3, 1280) # set the resolution
     cap.set(4, 720)
@@ -207,10 +246,9 @@ if __name__ == "__main__":
                         M[i] = single_IV_sweep(keysight, 1, start, stop, points, 1E-4, 5e-3)
                         keysight.close()
                         keysight = intialize_device()
-                    #print(M)
+
                     x = list(np.linspace(start, stop, points))
                     y = list(np.mean(M, axis=0))
-                       
                     params, covariance = curve_fit(func, x, y)
                     m_fit, c_fit = params
                     slope = m_fit
@@ -224,7 +262,7 @@ if __name__ == "__main__":
                     temp = re.sub(r'[^0-9.]', '', temp)
                     temp = re.sub(r'\.(?=.*\.)', '', temp)
                     if not is_float(temp):
-                        image_filename = os.path.join("error/", f"ERROR_{current_date}_ ({error_cnt}).jpg")
+                        image_filename = os.path.join(error_path, f"ERROR_{current_date}_ ({error_cnt}).jpg")
                         cv2.imwrite(image_filename, crop)
                         error_cnt += 1
                     else:
@@ -233,15 +271,16 @@ if __name__ == "__main__":
                     
                     plt.scatter(x, y, s=6)
                     plt.pause(0.01)  # Pause for 0.01 seconds to show each step
+
                     # Append the data to the list
                     data.append([time.ctime(start_time), temp, x, y, resistance])
                     df = pd.DataFrame(data, columns=['Time', 'Temperature', 'Voltage','Amps', 'Resistance'])
-                    #print(df.dtypes)
+                    df.to_csv(file_path, index=False)
                     print(temp, resistance)
                     print('Current Time:', time.ctime(time.time()))
+                    # Reset Time
                     start_time = None
                     print(df['Temperature'])
-                    df.to_csv(file_path, index=False)
             else:
                 cv2.imshow('Edges', edges)
         if paused and click_start is not None and click_end is not None:
