@@ -17,26 +17,20 @@ import sys
 import os
 import glob
 import string
-from System.IO import *
-from System.Threading import AutoResetEvent
 # Import C compatible List and String
+clr.AddReference("System")
 from System import String
 clr.AddReference('System.Collections')
 from System.Collections.Generic import List
+from System.Runtime.InteropServices import GCHandle, GCHandleType
 # Import System.IO for saving and opening files
+import System.IO
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import ctypes
 import time
 from datetime import datetime
-from System.Runtime.InteropServices import GCHandle, GCHandleType
-
-# relevant to the MDT
-try:
-    from MDT_COMMAND_LIB import *
-except OSError as ex:
-    print("Warning:", ex)
 
 # Add needed dll references
 sys.path.append(os.environ['LIGHTFIELD_ROOT'])
