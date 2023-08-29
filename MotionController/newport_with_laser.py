@@ -22,6 +22,7 @@ from System.Threading import AutoResetEvent
 # Import C compatible List and String
 from System import String
 clr.AddReference('System.Collections')
+from System import Int32
 from System.Collections.Generic import List
 # Import System.IO for saving and opening files
 import numpy as np
@@ -33,10 +34,6 @@ from datetime import datetime
 from System.Runtime.InteropServices import GCHandle, GCHandleType
 
 # relevant to the MDT
-try:
-    from MDT_COMMAND_LIB import *
-except OSError as ex:
-    print("Warning:", ex)
 
 # Add needed dll references
 sys.path.append(os.environ['LIGHTFIELD_ROOT'])
@@ -62,8 +59,8 @@ enable_background = 1
 serialNumber = 2108112774
 center_wavelength = 780     #nm
 v_res = 1       # voltage spacing of the piezo
-increment = (10 ** -2) #10 ** -4 1 volt is around 100nm
-v_range =2 # total voltage movement of the piezo
+increment = (10 ** -3) #10 ** -4 1 volt is around 100nm
+v_range =10 # total voltage movement of the piezo
 t_exp = 0.5     # exposure time in seconds
 x_step_range = v_range/v_res
 y_step_range = v_range/v_res
@@ -74,10 +71,10 @@ ROI_y_height = 17
 def Max_int_PLmap(incoming_data):
     incoming_data = np.max(incoming_data)
     print("c1")
-    PL_plot[x][y] = incoming_data
+    PL_plot[(v_range - 1) - y][x] = incoming_data
     print("c2")
     print(PL_plot)
-    plt.imshow(np.flip(PL_plot,0), cmap='Greys', interpolation='nearest')
+    plt.imshow(PL_plot, cmap='Greys', interpolation='nearest')
     plt.title("PL data realtime normalized")
     plt.ion()
     plt.draw()
@@ -121,7 +118,7 @@ def PLmapcapture(new_data):
     print(np.shape(new_data))
     PLmap[x][y] = new_data
     print("t9")
-    #print(PLmap)
+    print(PLmap)
 
 
 def spec_found():
@@ -193,8 +190,8 @@ def setROI():
 
 def InitializeFilenameParams():
     experiment.SetValue(ExperimentSettings.FileNameGenerationAttachIncrement, True)
-    experiment.SetValue(ExperimentSettings.FileNameGenerationIncrementNumber,1)
-    experiment.SetValue(ExperimentSettings.FileNameGenerationIncrementMinimumDigits, 2)
+    experiment.SetValue(ExperimentSettings.FileNameGenerationIncrementNumber, Int32(1))
+    experiment.SetValue(ExperimentSettings.FileNameGenerationIncrementMinimumDigits, Int32(2))
     experiment.SetValue(ExperimentSettings.FileNameGenerationAttachDate,True)
     experiment.SetValue(ExperimentSettings.FileNameGenerationAttachTime, True)
 
@@ -383,7 +380,7 @@ experiment.ImageDataSetReceived += experiment_completed
 # experiment.SetValue(SpectrometerSettings.GratingSelected,'[500nm,1200].[1][0]')    # example code for grating control
 # experiment.SetValue(SpectrometerSettings.GratingCenterWavelength, 780)             # sample code for setting center gr
 experiment.SetValue(CameraSettings.ShutterTimingExposureTime, t_exp*1000)
-experiment.SetValue(ExperimentSettings.AcquisitionFramesToStore, 1)
+experiment.SetValue(ExperimentSettings.AcquisitionFramesToStore, Int32(1))
 print("Active sensor width is", sensor_width)
 baseFilename = "PLmap_demo_"
 # ----------------------------------------------------- END
@@ -401,6 +398,7 @@ axis_y.move_to(0)
 axis_x.on()
 axis_y.on()
 print("stage initilized to zero position, X and Y are set to zero")
+# Eventually just have it move to max position just to make sure everything is good before going
 time.sleep(3)
 # ----------------------------------------------------- END
 
@@ -417,16 +415,16 @@ y = 0
 v_x=0
 v_y=0
 PL_plot = np.zeros((int(x_step_range),int(y_step_range)))
-for v_x in np.arange(0, v_range, v_res):
-    x = int(v_x/v_res)
-    axis_x.move_to(v_x * increment)
+for v_y in np.arange(0, v_range, v_res):
+    y = int(v_y/v_res)
+    axis_y.move_to(v_y * increment)
     time.sleep(0.3)
     # Read_X(hdl)
     # Read_Y(hdl)
-    if v_y == 0:
-        for v_y in np.arange(0, v_range, v_res):
-            y = int(v_y/v_res)
-            axis_y.move_to(v_y * increment)
+    if v_x == 0:
+        for v_x in np.arange(0, v_range, v_res):
+            x = int(v_x/v_res)
+            axis_x.move_to(v_x * increment)
             time.sleep(0.3)
             # Read_X(hdl)
             # Read_Y(hdl)
@@ -434,10 +432,10 @@ for v_x in np.arange(0, v_range, v_res):
             AcquireMoveAndLock(baseFilename)
             time.sleep(0.8)
             time.sleep(t_exp)
-    elif v_y == v_range - v_res:
-        for v_y in reversed(np.arange(0, v_range, v_res)):
-            y = int(v_y/v_res)
-            axis_y.move_to(v_y * increment)
+    elif v_x == v_range - v_res:
+        for v_x in reversed(np.arange(0, v_range, v_res)):
+            x = int(v_x/v_res)
+            axis_x.move_to(v_x * increment)
             time.sleep(0.3)
             # Read_X(hdl)
             # Read_Y(hdl)
