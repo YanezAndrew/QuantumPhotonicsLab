@@ -420,25 +420,21 @@ y = 0
 v_x=0
 v_y=0
 PL_plot = np.zeros((int(x_step_range),int(y_step_range)))
-for v_y in np.arange(0, v_range, v_res):
+for v_y in np.arange(0, v_range, v_res): # Move Y
     y = int(v_y/v_res)
     axis_y.move_to(v_y * increment)
     time.sleep(0.3)
-    # Read_X(hdl)
-    # Read_Y(hdl)
     if v_x == 0:
-        for v_x in np.arange(0, v_range, v_res):
+        for v_x in np.arange(0, v_range, v_res): # Move X
             x = int(v_x/v_res)
             axis_x.move_to(v_x * increment)
             time.sleep(0.3)
-            # Read_X(hdl)
-            # Read_Y(hdl)
             print("we are in position ", x, y)
             AcquireMoveAndLock(baseFilename)
             time.sleep(0.8)
             time.sleep(t_exp)
-    elif v_x == v_range - v_res:
-        for v_x in reversed(np.arange(0, v_range, v_res)):
+    elif v_x == v_range - v_res: 
+        for v_x in reversed(np.arange(0, v_range, v_res)): # Move X
             x = int(v_x/v_res)
             axis_x.move_to(v_x * increment)
             time.sleep(0.3)
