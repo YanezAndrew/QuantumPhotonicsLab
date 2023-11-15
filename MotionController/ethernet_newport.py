@@ -91,6 +91,7 @@ class ESP(object):
     """:param port: Serial port connected to the controller."""
     self.lock = threading.Lock()
     self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # Connects to Newport Controller
     self.sock.connect((ip_address, port))
     print("Found controller: " + self.version)
     self.Abort = self.abort
