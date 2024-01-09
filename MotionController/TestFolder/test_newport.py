@@ -8,39 +8,40 @@ import sys
 import math
 import time
 
+# Old way of connecting it 
 
-def connect_to_device(ip_address, port):
-    try:
-        # Create a socket object
-        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# def connect_to_device(ip_address, port):
+#     try:
+#         # Create a socket object
+#         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         
-        # Set a timeout for the connection (optional)
-        client_socket.settimeout(5)
+#         # Set a timeout for the connection (optional)
+#         client_socket.settimeout(5)
 
-        # Connect to the device using the IP address and port number
-        client_socket.connect((ip_address, port))
+#         # Connect to the device using the IP address and port number
+#         client_socket.connect((ip_address, port))
         
-        print(f"Successfully connected to {ip_address}:{port}")
+#         print(f"Successfully connected to {ip_address}:{port}")
 
-        # Perform any necessary communication with the device here
+#         # Perform any necessary communication with the device here
         
-        # Close the socket when done
-        client_socket.close()
+#         # Close the socket when done
+#         client_socket.close()
 
-    except socket.error as e:
-        print(f"Error connecting to {ip_address}:{port}: {e}")
+#     except socket.error as e:
+#         print(f"Error connecting to {ip_address}:{port}: {e}")
 
-def send_string_over_socket(ip_address, port, data):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        try:
-            sock.connect((ip_address, port))
-            sock.sendall(data.encode())
-            response = sock.recv(1024).decode()
-            print("Response from the device:", response)
-        except (socket.error, ConnectionRefusedError) as e:
-            print(f"Error while connecting to the device: {e}")
-        finally:
-            sock.close()
+# def send_string_over_socket(ip_address, port, data):
+#     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+#         try:
+#             sock.connect((ip_address, port))
+#             sock.sendall(data.encode())
+#             response = sock.recv(1024).decode()
+#             print("Response from the device:", response)
+#         except (socket.error, ConnectionRefusedError) as e:
+#             print(f"Error while connecting to the device: {e}")
+#         finally:
+#             sock.close()
         
     
 if __name__ == '__main__':
