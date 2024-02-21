@@ -323,12 +323,16 @@ def load_experiment():
 
 device_ip = '192.168.254.254'
 device_port = 5001
+backlashx = 0.01126
+backlashy = 0.01292
 esp = ESP(device_ip, device_port)
 axis_x = esp.axis(1)
 axis_y = esp.axis(2)
+axis_x.on()
+axis_y.on()
 
-axis_y.move_to(0)
-axis_x.move_to(0)
+axis_y.move_to(15.172)
+axis_x.move_to(22.935)
 
 
 
@@ -398,8 +402,8 @@ baseFilename = "PLmap_demo_"
 print("Moving in steps of", v_res, " with interval times of ", t_exp, " seconds ", "and increment size of ", increment)
 axis_x.on()
 axis_y.on()
-axis_x.move_to(0)
-axis_y.move_to(0)
+axis_x.move_to(15.172)
+axis_y.move_to(22.935)
 axis_x.on()
 axis_y.on()
 print("stage initilized to zero position, X and Y are set to zero")

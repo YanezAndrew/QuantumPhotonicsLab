@@ -1,4 +1,5 @@
 from ethernet_newport import ESP
+from ethernet_newport import Axis
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import time
@@ -37,14 +38,10 @@ def check_alignment():
 
     """
 
-
-# , axis_x)
 def move_right(x_list, increment):
     #print(len(x_list))
     axis_x.move_by(increment)
     print(" *" * len(x_list))
-
-# , axis_x)
 
 def move_left(x_list, steps, increment):
     axis_x.move_by(-1 * increment)
@@ -53,8 +50,6 @@ def move_left(x_list, steps, increment):
     # print(x)
     # print(spaces)
     print("  " * (spaces), "* " * stars)
-
-
 
 #
 # , axis_x, axis_y)
@@ -142,7 +137,6 @@ def sweep(x_list, y_list, x_max, y_max, x_steps, y_steps, increment, axis_x, axi
             
             
 
-        
 
 if __name__ == '__main__':
     # Checks if Device is Connected
@@ -156,24 +150,28 @@ if __name__ == '__main__':
     #     sys.exit(1)
     device_ip = '192.168.254.254'
     device_port = 5001
+    
     esp = ESP(device_ip, device_port)
     axis_x = esp.axis(1)
     axis_y = esp.axis(2)
+    axis_x.on()
+    axis_y.on()
 
-    axis_x.move_to(0)
-    axis_y.move_to(0)
-    
+    # Moving to initial position #
+    axis_x.move_to(15.172) # units of mm 
+    axis_y.move_to(22.935) # units of mm 
+
     x_list = []
     y_list = []
 
     # get_x()
-    x = 1.0
+    x = 0.01
     # get_y()
-    y = 0.5
+    y = 0.002
     # get_increment()
-    increment = 0.1
-
-    x_steps = int(x / increment) +1
+    increment = 0.001
+    
+    x_steps = int(x / increment) + 1
     y_steps = int(y / increment) + 1
 
     print("Resolution: ", x_steps, " x " , y_steps)
@@ -195,9 +193,9 @@ if __name__ == '__main__':
         # Set up the animation
 
         
-    axis_x.move_to(0)
-    axis_y.move_to(0)
-    
+    # Return to Initial Position
+    axis_x.move_to(15.172) # units of mm 
+    axis_y.move_to(22.935) # units of mm 
 
     # print(x_list)
     # print(len(x_list))

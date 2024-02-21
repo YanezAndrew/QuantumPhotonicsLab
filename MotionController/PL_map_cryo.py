@@ -57,7 +57,7 @@ from PrincetonInstruments.LightField.AddIns import SpectrometerSettings
 # --------------------------- Global Parameter Declarations (Modify to desired settings)
 #experiment_name = "ff"
 # If you are running real experiment please specify code_type = 1 else for demo
-code_type = 1
+code_type = 0
 enable_background = 1
 serialNumber = 2108112774
 center_wavelength = 780     #nm
@@ -364,7 +364,7 @@ def load_experiment():
 
 # First we check to see if MDT693B is connected. If connected, we open lightfield and set the settings
 # ----------------------------------------------------- START
-device_ip = '192.168.254.254'
+# device_ip = '192.168.254.254'
 device_port = 5001
 
 esp = ESP(device_ip, device_port)
